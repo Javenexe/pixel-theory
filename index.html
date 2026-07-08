@@ -343,6 +343,7 @@
   <a href="#words">Your Words</a>
   <a href="#rituals">Rituals</a>
   <a href="essay.html">The Essay</a>
+  <a href="provenance.html">The Position</a>
   <a href="#" id="tourBtn" style="color:var(--accent);font-weight:600">✦ take the tour</a>
 </nav>
 
@@ -745,6 +746,22 @@
   </div>
 
   <div class="card">
+    <h3>Verify anyone's claim</h3>
+    <div class="note">
+      Independent verification — nothing here is trusted. Give it a claim file and the frame
+      it names (a .javen coordinate, or a lossless image at the claimed resolution); the
+      fingerprint and signature are recomputed in your browser from scratch.
+    </div>
+    <div class="btn-row">
+      <button id="vClaimBtn">1 · claim file…</button>
+      <button id="vFrameBtn">2 · frame (.javen or image)…</button>
+      <input type="file" id="vClaimInput" accept=".json,application/json" style="display:none">
+      <input type="file" id="vFrameInput" accept="image/*,.javen,application/json" style="display:none">
+    </div>
+    <div class="info-list" id="vResult" style="margin-top:10px"></div>
+  </div>
+
+  <div class="card">
     <div class="btn-row" style="align-items:center">
       <input type="text" id="claimName" placeholder="witness name (optional)" style="width:200px">
       <button class="primary" id="claimBtn">✍ claim the current viewer frame</button>
@@ -839,6 +856,7 @@
   carries exactly as much information as the frame itself (the pigeonhole principle). To find a
   specific photograph in the set, you must already possess it. The map is the territory.</p>
   <p class="mono">pixeltheory · <a href="essay.html" style="color:var(--accent)">read the essay</a> ·
+  <a href="provenance.html" style="color:var(--accent)">the provenance position</a> ·
   <a href="teachers.html" style="color:var(--accent)">for educators</a> ·
   <a href="https://github.com/Javenexe/pixel-theory" style="color:var(--accent)">source &amp; specimen archive</a> ·
   companion CLI: pixeltheory.py · everything runs locally in your browser</p>
@@ -2068,6 +2086,81 @@ async function viewClaim(i) {
   document.getElementById("viewer").scrollIntoView();
 }
 
+/* ================= independent claim verifier ================= */
+const VER = { claim: null, claimName: "", frameBytes: null, frameSpace: "", frameName: "" };
+function vStatus(html) { document.getElementById("vResult").innerHTML = html; }
+function vRow(k, v) { return `<div><span class="k">${k}</span><span class="v">${v}</span></div>`; }
+async function vSetClaim(file) {
+  try {
+    const c = JSON.parse(await file.text());
+    if (!c.sha256 || !c.space) throw new Error("not a claim: needs at least sha256 and space");
+    VER.claim = c; VER.claimName = file.name;
+    await vTryVerify();
+  } catch (e) { vStatus(vRow("claim error", e.message)); }
+}
+async function vSetFrame(file) {
+  try {
+    if (/\.javen$/i.test(file.name) || file.type === "application/json") {
+      const card = JSON.parse(await file.text());
+      if (card.format !== "javen-coordinate-v1") throw new Error("not a javen coordinate card");
+      let bytes = b64ToBytes(card.index);
+      if (card.encoding.startsWith("deflate")) bytes = await tryInflate(bytes);
+      VER.frameBytes = bytes; VER.frameSpace = card.space;
+    } else {
+      const img = await decodeImageFile(file);
+      const w = img.width, h = img.height;
+      const c = document.createElement("canvas"); c.width = w; c.height = h;
+      const x = c.getContext("2d");
+      x.drawImage(img, 0, 0);
+      const d = x.getImageData(0, 0, w, h).data;
+      const bytes = new Uint8Array(w * h * 3);
+      for (let i = 0, j = 0; j < d.length; i += 3, j += 4) {
+        bytes[i] = d[j]; bytes[i + 1] = d[j + 1]; bytes[i + 2] = d[j + 2];
+      }
+      VER.frameBytes = bytes; VER.frameSpace = `${w}x${h}`;
+    }
+    VER.frameName = file.name;
+    await vTryVerify();
+  } catch (e) { vStatus(vRow("frame error", e.message)); }
+}
+async function vTryVerify() {
+  const parts = [];
+  if (VER.claim) parts.push(vRow("claim", `${VER.claimName} — ${VER.claim.witness || "unnamed witness"}, ${VER.claim.space}`));
+  if (VER.frameBytes) parts.push(vRow("frame", `${VER.frameName} — ${VER.frameSpace}, ${fmtBig(VER.frameBytes.length)} bytes`));
+  if (!VER.claim || !VER.frameBytes) {
+    parts.push(vRow("status", "waiting for " + (!VER.claim ? "the claim file" : "the frame")));
+    vStatus(parts.join(""));
+    return;
+  }
+  const c = VER.claim;
+  const spaceOk = c.space === VER.frameSpace;
+  parts.push(vRow("space", spaceOk ? `✓ ${c.space}` : `✗ claim says ${c.space}, frame is ${VER.frameSpace}`));
+  const dig = await crypto.subtle.digest("SHA-256", VER.frameBytes);
+  const sha = Array.from(new Uint8Array(dig), x => x.toString(16).padStart(2, "0")).join("");
+  const shaOk = sha === c.sha256;
+  parts.push(vRow("fingerprint", shaOk ? "✓ sha-256 matches — this is exactly the claimed frame" : "✗ sha-256 MISMATCH — this is not the claimed frame"));
+  if (c.sig && c.pub && c.ts) {
+    try {
+      const spki = b64ToBytes(c.pub);
+      const pub = await crypto.subtle.importKey("spki", spki,
+        { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
+      const msg = new TextEncoder().encode(claimMessage(c.sha256, c.space, c.ts));
+      const sigOk = await crypto.subtle.verify({ name: "ECDSA", hash: "SHA-256" }, pub, b64ToBytes(c.sig), msg);
+      const kd = new Uint8Array(await crypto.subtle.digest("SHA-256", spki));
+      const fp = Array.from(kd.slice(0, 6), x => x.toString(16).padStart(2, "0")).join("");
+      parts.push(vRow("signature", sigOk
+        ? `✓ valid — key ${fp} vouched for this frame at ${new Date(c.ts).toLocaleString()}`
+        : "✗ INVALID — the claim does not match its own key"));
+      parts.push(vRow("verdict", spaceOk && shaOk && sigOk
+        ? "<b>✓ verified witnessing</b> — the frame, the moment, and the key all agree"
+        : "<b>✗ verification failed</b>"));
+    } catch (e) { parts.push(vRow("signature", "✗ could not check: " + e.message)); }
+  } else {
+    parts.push(vRow("signature", "— unsigned claim (fingerprint check only)"));
+  }
+  vStatus(parts.join(""));
+}
+
 /* ================= the specimen archive (public ledger) ================= */
 async function loadArchive() {
   const list = document.getElementById("archiveList");
@@ -2500,6 +2593,16 @@ filmDrop.addEventListener("drop", e => {
 });
 
 /* registry wiring */
+document.getElementById("vClaimBtn").addEventListener("click", () => document.getElementById("vClaimInput").click());
+document.getElementById("vFrameBtn").addEventListener("click", () => document.getElementById("vFrameInput").click());
+document.getElementById("vClaimInput").addEventListener("change", e => {
+  if (e.target.files[0]) vSetClaim(e.target.files[0]);
+  e.target.value = "";
+});
+document.getElementById("vFrameInput").addEventListener("change", e => {
+  if (e.target.files[0]) vSetFrame(e.target.files[0]);
+  e.target.value = "";
+});
 document.getElementById("claimBtn").addEventListener("click", claimFrame);
 document.getElementById("recallBtn").addEventListener("click", recallBySha);
 document.getElementById("recallSha").addEventListener("keydown", e => { if (e.key === "Enter") recallBySha(); });

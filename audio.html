@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Every Sound — a complete media space</title>
+<meta name="description" content="The audio sibling of Pixel Theory: the finite set of every possible ten-second sound. Tune into audible static no one has ever heard; address a recording of your own voice.">
+<meta property="og:title" content="Every Sound">
+<meta property="og:description" content="Every sentence ever spoken, every song, and every sound that never was — one finite, addressed set. The second complete media space.">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230d0d0d'/%3E%3Crect x='1' y='6' width='2' height='6' fill='%233987e5'/%3E%3Crect x='4' y='3' width='2' height='11' fill='%23c3c2b7'/%3E%3Crect x='7' y='7' width='2' height='4' fill='%233987e5'/%3E%3Crect x='10' y='2' width='2' height='12' fill='%23888'/%3E%3Crect x='13' y='5' width='2' height='7' fill='%233987e5'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --page: #0d0d0d; --surface: #1a1a19; --surface-2: #222221; --ink: #ffffff;
+    --ink-2: #c3c2b7; --muted: #898781; --grid: #2c2c2a; --baseline: #383835;
+    --ring: rgba(255,255,255,0.10); --accent: #3987e5; --accent-dim: #184f95;
+    --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--page); color: var(--ink-2); font-family: var(--font);
+    font-size: clamp(15px, 1.5vw, 17px); line-height: 1.7;
+  }
+  .top {
+    padding: 14px clamp(16px, 4vw, 24px); border-bottom: 1px solid var(--grid);
+    display: flex; gap: 16px; align-items: baseline;
+  }
+  .top a { color: var(--muted); text-decoration: none; font-size: 13px; }
+  .top a:hover { color: var(--accent); }
+  .top .brand { font-weight: 700; letter-spacing: 0.14em; color: var(--ink); font-size: 13px; }
+  .top .brand span { color: var(--accent); }
+  main { max-width: 860px; margin: 0 auto; padding: 50px clamp(16px, 4vw, 24px) 80px; }
+  .kicker { font-size: 12px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent); margin-bottom: 12px; }
+  h1 { color: var(--ink); font-size: clamp(26px, 4.4vw, 38px); line-height: 1.15; margin-bottom: 12px; }
+  h2 { color: var(--ink); font-size: clamp(18px, 2.4vw, 23px); margin: 40px 0 12px; }
+  p { margin-bottom: 16px; max-width: 70ch; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  em { color: var(--ink); font-style: normal; font-weight: 600; }
+  .card { background: var(--surface); border: 1px solid var(--ring); border-radius: 10px; padding: 18px 20px; margin: 18px 0; }
+  .card h3 { font-size: 14px; color: var(--ink); margin-bottom: 8px; }
+  .hero { font-size: clamp(24px, 4.4vw, 40px); font-weight: 600; color: var(--ink); }
+  .hero span { white-space: nowrap; }
+  .sub { font-family: var(--mono); font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+  button {
+    background: var(--surface-2); color: var(--ink); border: 1px solid var(--baseline);
+    border-radius: 7px; padding: 8px 16px; font-size: 13.5px; font-family: var(--font); cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent-dim); border-color: var(--accent); }
+  button.primary:hover { background: var(--accent); color: #fff; }
+  button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin: 10px 0; }
+  .info-list { font-family: var(--mono); font-size: 12.5px; margin-top: 10px; }
+  .info-list div { padding: 5px 0; border-bottom: 1px solid var(--grid); display: flex; gap: 10px; }
+  .info-list div:last-child { border-bottom: none; }
+  .info-list .k { color: var(--muted); min-width: 120px; flex-shrink: 0; }
+  .info-list .v { color: var(--ink-2); word-break: break-all; }
+  .info-list .v b { color: var(--ink); }
+  .dropzone {
+    border: 1.5px dashed var(--baseline); border-radius: 10px; padding: 30px 20px;
+    text-align: center; color: var(--muted); cursor: pointer; margin: 12px 0;
+  }
+  .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: var(--surface); color: var(--ink-2); }
+  .dropzone input { display: none; }
+  canvas { width: 100%; height: 90px; background: transparent; }
+  .poem {
+    margin: 16px 0; padding: 14px 18px; border-left: 2px solid var(--accent);
+    color: var(--ink-2); font-size: 14px; max-width: 640px; background: var(--surface);
+    border-radius: 0 8px 8px 0;
+  }
+  sup { font-size: 0.6em; }
+  @media (max-width: 520px) { .info-list div { flex-direction: column; gap: 2px; } .info-list .k { min-width: 0; } }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <span class="brand">PIXEL<span>THEORY</span></span>
+  <a href="index.html">← the image space</a>
+  <a href="essay.html">the essay</a>
+  <a href="provenance.html">the position</a>
+</div>
+
+<main>
+  <div class="kicker">A second complete media space</div>
+  <h1>Every Sound</h1>
+
+  <p>Pixel Theory is not about images. Images were just the first instance.
+  <em>Digitization makes every medium a finite, fully addressed set</em> —
+  and here is the second one: sound.</p>
+
+  <p>Ten seconds of CD-quality stereo audio is 882,000 samples of 16 bits
+  each. The set of every possible such clip therefore has
+  2<sup>14,112,000</sup> members:</p>
+
+  <div class="card">
+    <div class="hero" id="heroTotal">…</div>
+    <div class="sub">= 2 ^ 14,112,000 — every possible 10-second clip at 44.1 kHz, 16-bit stereo</div>
+  </div>
+
+  <p>This set contains every sentence ever spoken by every human, in every
+  voice, in every language — including all the ones never uttered. Every song,
+  every performance of every song, every mix that was never released. Your
+  own voice saying words you will never say. All of it fixed, finite,
+  addressed — and, like the image space, overwhelmingly made of hiss.</p>
+
+  <h2>Tune in</h2>
+  <p>Uniform random samples from the set. Almost every clip you hear has
+  never been heard by any ear in history, and after it plays, it never will
+  be again.</p>
+
+  <div class="card">
+    <div class="btn-row">
+      <button class="primary" id="playBtn">▶ tune in — 10 seconds of the never-heard</button>
+    </div>
+    <canvas id="wave" width="900" height="90"></canvas>
+    <div class="info-list" id="staticInfo"></div>
+    <div class="poem">You are the only ear that will ever hear this. When it ends,
+    its address returns to the dark with the rest of the 10<sup>4,248,135</sup>.</div>
+  </div>
+
+  <h2>Address a recording</h2>
+  <p>Drop in any audio file — your voice, a song, a memo. It decodes to PCM
+  samples, and those samples are a number: the address the recording has held
+  since before sound existed. A microphone, like a camera, looks things up.</p>
+
+  <div class="dropzone" id="drop">
+    <input type="file" id="fileInput" accept="audio/*">
+    drop audio here, or click to choose · processed locally, never uploaded
+  </div>
+  <div class="info-list" id="addrInfo"></div>
+
+  <h2>The pattern generalizes</h2>
+  <p>Text was first — Borges wrote the library, and the internet built it.
+  Images are the <a href="index.html">Javen Number</a>. Sound is this page.
+  Video is <a href="index.html#film">a path through the image space</a>, one
+  frame per step. In every case the same facts hold: the set is complete and
+  timeless; creation is navigation; meaning is compressibility, provably of
+  measure zero in its ocean; and truth about origin lives not in the samples
+  but in <a href="provenance.html">the witnessed event that selected them</a>.
+  Whatever reality is, it is not the set of its possible appearances — it is
+  the process that chooses among them.</p>
+</main>
+
+<script>
+"use strict";
+// exact stats for 2^k, as on the main page
+const L10_2 = 30102999566398119521373889472449302676818988146210n;
+const SCALE = 10n ** 50n;
+function pow2Stats(k) {
+  const t = BigInt(k) * L10_2;
+  return { exp10: t / SCALE, mantissa: Math.pow(10, Number(t % SCALE) / 1e50) };
+}
+const BITS = 14112000;
+const s = pow2Stats(BITS);
+document.getElementById("heroTotal").innerHTML =
+  `${s.mantissa.toPrecision(6)} <span>× 10<sup>${s.exp10.toLocaleString("en-US")}</sup></span>`;
+
+/* ---- tune in ---- */
+let ctx = null, src = null, playing = false;
+function drawWave(data) {
+  const c = document.getElementById("wave"), g = c.getContext("2d");
+  g.clearRect(0, 0, c.width, c.height);
+  g.strokeStyle = "#3987e5"; g.lineWidth = 1.5;
+  g.beginPath();
+  const step = Math.floor(data.length / c.width);
+  for (let x = 0; x < c.width; x++) {
+    const v = data[x * step];
+    const y = c.height / 2 + v * (c.height / 2 - 4);
+    x ? g.lineTo(x, y) : g.moveTo(x, y);
+  }
+  g.stroke();
+}
+async function playStatic() {
+  const btn = document.getElementById("playBtn");
+  if (playing) { src.stop(); return; }
+  ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+  await ctx.resume();
+  const sr = 44100, len = sr * 10;
+  const buf = ctx.createBuffer(2, len, sr);
+  const i16 = new Int16Array(65536 / 2);
+  for (let ch = 0; ch < 2; ch++) {
+    const f = buf.getChannelData(ch);
+    for (let i = 0; i < len; ) {
+      crypto.getRandomValues(i16);
+      for (let j = 0; j < i16.length && i < len; j++, i++) f[i] = i16[j] / 32768;
+    }
+  }
+  drawWave(buf.getChannelData(0).subarray(0, 44100));
+  src = ctx.createBufferSource();
+  src.buffer = buf;
+  const gain = ctx.createGain(); gain.gain.value = 0.22;  // spare the ears
+  src.connect(gain).connect(ctx.destination);
+  src.onended = () => {
+    playing = false;
+    btn.textContent = "▶ tune in — 10 seconds of the never-heard";
+    btn.classList.remove("active");
+  };
+  src.start();
+  playing = true;
+  btn.textContent = "⏸ you are its only witness";
+  btn.classList.add("active");
+  document.getElementById("staticInfo").innerHTML =
+    `<div><span class="k">this clip</span><span class="v">one member of 10^${s.exp10.toLocaleString("en-US")} — sampled uniformly, played once</span></div>`;
+}
+document.getElementById("playBtn").addEventListener("click", playStatic);
+
+/* ---- address a recording ---- */
+async function addressAudio(file) {
+  const info = document.getElementById("addrInfo");
+  info.innerHTML = `<div><span class="k">status</span><span class="v">decoding ${file.name}…</span></div>`;
+  try {
+    ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+    const buf = await ctx.decodeAudioData(await file.arrayBuffer());
+    const ch = buf.numberOfChannels, n = buf.length;
+    const bytes = new Uint8Array(n * ch * 2);           // 16-bit PCM, interleaved
+    for (let c2 = 0; c2 < ch; c2++) {
+      const f = buf.getChannelData(c2);
+      for (let i = 0; i < n; i++) {
+        const v = Math.max(-32768, Math.min(32767, Math.round(f[i] * 32767)));
+        const o = (i * ch + c2) * 2;
+        bytes[o] = (v >> 8) & 255; bytes[o + 1] = v & 255;
+      }
+    }
+    drawWave(buf.getChannelData(0).subarray(0, Math.min(44100, n)));
+    const dig = await crypto.subtle.digest("SHA-256", bytes);
+    const sha = Array.from(new Uint8Array(dig), x => x.toString(16).padStart(2, "0")).join("");
+    // its own space and address
+    const bits = bytes.length * 8;
+    const sp = pow2Stats(bits);
+    let i0 = 0; while (i0 < bytes.length && bytes[i0] === 0) i0++;
+    let m = 0; const take = Math.min(7, bytes.length - i0);
+    for (let k = 0; k < take; k++) m = m * 256 + bytes[i0 + k];
+    const lg = i0 === bytes.length ? 0 : Math.log10(m) + (bytes.length - i0 - take) * Math.log10(256);
+    const e = Math.floor(lg);
+    // compressibility
+    let ratio = null;
+    if ("CompressionStream" in window) {
+      const comp = new Uint8Array(await new Response(
+        new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate"))).arrayBuffer());
+      ratio = bytes.length / comp.length;
+    }
+    info.innerHTML = `
+      <div><span class="k">recording</span><span class="v"><b>${file.name}</b> — ${buf.duration.toFixed(2)} s, ${ch} channel${ch > 1 ? "s" : ""}, ${buf.sampleRate} Hz</span></div>
+      <div><span class="k">its space</span><span class="v">10^${sp.exp10.toLocaleString("en-US")} possible clips of this exact length</span></div>
+      <div><span class="k">address</span><span class="v"><b>≈ ${Math.pow(10, lg - e).toPrecision(6)} × 10^${e.toLocaleString("en-US")}</b> — held since before sound existed</span></div>
+      <div><span class="k">sha-256</span><span class="v">${sha}</span></div>
+      ${ratio ? `<div><span class="k">reading</span><span class="v">${ratio > 1.3
+        ? `compresses ${ratio.toFixed(1)}× — ${(100 - 100 / ratio).toFixed(1)}% pattern: the signature of meaning`
+        : "barely compressible — the signature of noise"}</span></div>` : ""}`;
+  } catch (e) {
+    info.innerHTML = `<div><span class="k">error</span><span class="v">couldn't decode "${file.name}" — ${e.message || "unsupported format"}</span></div>`;
+  }
+}
+const drop = document.getElementById("drop");
+const fi = document.getElementById("fileInput");
+drop.addEventListener("click", e => { if (e.target !== fi) fi.click(); });
+fi.addEventListener("change", () => { if (fi.files[0]) addressAudio(fi.files[0]); fi.value = ""; });
+drop.addEventListener("dragover", e => { e.preventDefault(); drop.classList.add("drag"); });
+drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
+drop.addEventListener("drop", e => {
+  e.preventDefault(); drop.classList.remove("drag");
+  if (e.dataTransfer.files[0]) addressAudio(e.dataTransfer.files[0]);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: "If you use or discuss Pixel Theory, the Javen Number, or the detection-decay position, please cite it as below."
+title: "Pixel Theory: the Complete Image Space"
+authors:
+  - family-names: "Burchell"
+    given-names: "Javen"
+    alias: "Javenexe"
+date-released: 2026-07-08
+url: "https://javenexe.github.io/pixel-theory/"
+repository-code: "https://github.com/Javenexe/pixel-theory"
+abstract: >-
+  An interactive exploration of the finite set of all possible images at a
+  fixed resolution (the Javen Number: 16,777,216^1,166,400 frames at
+  1080x1080), with a position paper arguing that deepfake detection is a
+  structurally wasting asset and that image trust requires content-addressed,
+  time-anchored witnessing. Includes a dependency-free reference
+  implementation: browser-side ECDSA claims, an independent verifier, and a
+  public specimen archive anchored into Bitcoin via OpenTimestamps.
+keywords:
+  - information theory
+  - Kolmogorov complexity
+  - image provenance
+  - deepfakes
+  - content authenticity
+license: MIT

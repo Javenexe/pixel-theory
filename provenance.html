@@ -113,6 +113,48 @@
   <p class="pull">Any published detector becomes a training target. The better
   it is, the better the next forger that learns from it.</p>
 
+  <h2>The strongest objection, taken seriously</h2>
+
+  <p>A machine-learning researcher will object here, and the objection is
+  good: <em>"Detection doesn't classify set membership — it separates
+  distributions."</em> Cameras don't sample the space uniformly; they sample a
+  distribution shaped by optics, sensors, and the physics of scenes.
+  Generators sample a different distribution, shaped by architectures and
+  training data. Classifiers separate distributions all the time, and today's
+  deepfake detectors demonstrably work. The set argument, the objection goes,
+  proves only that a <em>perfect</em> detector is impossible — not that a
+  useful one is.</p>
+
+  <p>Correct — and it concedes the point that matters. Grant everything: a
+  detector's power is bounded by the statistical distance between the capture
+  distribution and the generator's distribution. Now ask what the generative
+  modeling industry is paid to do. The training objective of every generative
+  model <em>is the minimization of exactly that distance</em>. A detector
+  exploits a gap that billions of dollars of gradient descent are working to
+  close — not as a side effect, but as the definition of progress. Detection
+  is possible precisely to the degree that generators are unfinished.</p>
+
+  <p>Three dynamics make this decay structural rather than incidental.
+  <em>First</em>, the gap only narrows: model families improve
+  monotonically on the divergence measures detectors depend on.
+  <em>Second</em>, the adversarial loop: a published detector is a
+  differentiable description of the remaining gap, and training against it is
+  routine — defense in this game is a gradient supplied to the attacker.
+  <em>Third</em>, the asymmetry of stakes: a detector fleet must be right
+  about every image, while a forger needs one image to pass once, in one news
+  cycle. Base rates finish the job — even a 99%-accurate detector, screening
+  feeds where fakes are rare and getting rarer to detect, drowns its true
+  positives in false alarms.</p>
+
+  <p>So the refined claim, stated carefully: detection is not impossible
+  today; it is a <em>wasting asset</em> whose power decays toward zero as
+  generative distributions converge on capture distributions — and the
+  decay is accelerated by the defense's own publications. Infrastructure for
+  trust cannot be built on a signal whose designed fate is extinction.
+  Witnessing, by contrast, gets <em>stronger</em> over time: every anchored
+  claim accumulates history that no future generator, however perfect, can
+  reach back and forge.</p>
+
   <h2>Truth was never in the pixels</h2>
 
   <p>Here is the reframe the complete set forces on us. A photograph was never
@@ -140,7 +182,10 @@
     <em>I vouched for this frame at this moment.</em></li>
     <li><em>Ledger</em> — claims accumulate somewhere whose history cannot be
     quietly rewritten, so the <em>when</em> of a testimony is itself
-    witnessed.</li>
+    witnessed. The Pixel Theory archive anchors its root hash into the
+    Bitcoin blockchain via OpenTimestamps on every change — even the
+    maintainer cannot backdate a claim, because every archive state is pinned
+    by public infrastructure nobody involved controls.</li>
   </ol>
 
   <p><a href="index.html#registry">The Pixel Theory registry</a> implements
@@ -192,6 +237,33 @@
   <p class="pull">Detection asks pixels a question they cannot answer.
   Witnessing asks people a question we have three thousand years of practice
   answering.</p>
+
+  <h2>Corroboration: what N witnesses buy you</h2>
+
+  <p>The limits above share one shape — any <em>single</em> witness can lie,
+  be compromised, or be fooled. The theory itself points at the remedy. If
+  reality is the process that selects frames, then a real event produces
+  something no forgery pipeline naturally does: <em>many independent
+  selection events that agree</em>. Different devices, different vantage
+  points, different keys, different owners — all committing, within minutes
+  of each other, to frames that depict the same scene.</p>
+
+  <p>Forging one signed image requires one bad actor. Forging corroboration
+  requires a conspiracy: N key-holders, coordinating in real time, each
+  spending reputation accumulated over years on a single lie — and leaving N
+  permanent, attributable, timestamped artifacts of the conspiracy in ledgers
+  they cannot later edit. Corroboration converts forgery from a technical
+  problem (solved, and improving) into a <em>conspiracy problem</em> — the
+  kind that leaks, defects, and gets discovered, and whose cost scales with
+  N while the cost of generating pixels stays flat. This is precisely how
+  testimony has always been hardened: not by making the lie impossible, but
+  by making it expensive, collective, and permanently on the record.</p>
+
+  <p>Concretely, this sets the roadmap for claim formats: co-signatures on a
+  fingerprint (multiple keys vouching for one frame), <em>scene claims</em>
+  binding several distinct frames to one asserted event, and reputation as a
+  property that keys earn by a public history of corroborated witnessing —
+  and lose, permanently and publicly, when caught vouching for a lie.</p>
 
   <h2>What the set teaches about reality</h2>
 

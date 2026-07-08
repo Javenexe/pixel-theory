@@ -49,3 +49,19 @@ A frame proves nothing about itself — every possible fake already exists in
 the set. What cannot be faked is a signature on a witnessing: proof that
 someone vouched for this frame at this moment. That is what the archive
 records.
+
+## Time anchoring
+
+On every merge that changes `specimens/`, a maintainer runs
+`python3 scripts/anchor.py`. This computes a deterministic root hash over the
+whole archive and timestamps it with [OpenTimestamps](https://opentimestamps.org),
+which aggregates it into the Bitcoin blockchain via public calendar servers.
+The proof lives at `ledger/ROOT.ots` and anyone can check it:
+
+```
+ots verify ledger/ROOT.ots -f ledger/ROOT
+```
+
+This is what makes the ledger's *when* trustworthy: even the maintainer
+cannot backdate a claim, because every archive state is pinned by
+infrastructure nobody involved controls.

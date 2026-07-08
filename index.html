@@ -344,6 +344,7 @@
   <a href="#rituals">Rituals</a>
   <a href="essay.html">The Essay</a>
   <a href="provenance.html">The Position</a>
+  <a href="audio.html">Every Sound</a>
   <a href="#" id="tourBtn" style="color:var(--accent);font-weight:600">✦ take the tour</a>
 </nav>
 
@@ -742,6 +743,9 @@
       submit your own: claim a frame, export its coordinate and claim file, and open a pull
       request — <a href="https://github.com/Javenexe/pixel-theory/blob/main/CONTRIBUTING.md"
       style="color:var(--accent)">instructions</a>
+      · the archive root is time-anchored into Bitcoin via
+      <a href="https://github.com/Javenexe/pixel-theory/tree/main/ledger" style="color:var(--accent)">OpenTimestamps</a>,
+      so not even the maintainer can backdate a claim
     </div>
   </div>
 
@@ -857,6 +861,7 @@
   specific photograph in the set, you must already possess it. The map is the territory.</p>
   <p class="mono">pixeltheory · <a href="essay.html" style="color:var(--accent)">read the essay</a> ·
   <a href="provenance.html" style="color:var(--accent)">the provenance position</a> ·
+  <a href="audio.html" style="color:var(--accent)">every sound</a> ·
   <a href="teachers.html" style="color:var(--accent)">for educators</a> ·
   <a href="https://github.com/Javenexe/pixel-theory" style="color:var(--accent)">source &amp; specimen archive</a> ·
   companion CLI: pixeltheory.py · everything runs locally in your browser</p>
@@ -1443,13 +1448,42 @@ function setSlot(which, bytes) {
   paintCanvas(document.getElementById(which === "A" ? "slotACanvas" : "slotBCanvas"), bytes);
   dissolveFrame();
 }
+// real-photograph defaults: assets/dissolve-a.jpg and dissolve-b.jpg, cover-cropped
+// to the current space; falls back to synthetic scenes when the files are absent
+const DPHOTOS = { a: null, b: null, tried: false };
+function bitmapToFrame(img) {
+  const c = document.createElement("canvas"); c.width = state.w; c.height = state.h;
+  const x = c.getContext("2d");
+  const scale = Math.max(state.w / img.width, state.h / img.height);
+  x.drawImage(img, (state.w - img.width * scale) / 2, (state.h - img.height * scale) / 2,
+    img.width * scale, img.height * scale);
+  const d = x.getImageData(0, 0, state.w, state.h).data;
+  const out = new Uint8Array(bytesPerFrame());
+  for (let i = 0, j = 0; j < d.length; i += 3, j += 4) {
+    out[i] = d[j]; out[i + 1] = d[j + 1]; out[i + 2] = d[j + 2];
+  }
+  return out;
+}
+async function loadDissolvePhotos() {
+  if (DPHOTOS.tried) return;
+  DPHOTOS.tried = true;
+  try {
+    const grab = async name => {
+      const r = await fetch("assets/" + name);
+      if (!r.ok) throw new Error(name);
+      return createImageBitmap(await r.blob());
+    };
+    [DPHOTOS.a, DPHOTOS.b] = await Promise.all([grab("dissolve-a.jpg"), grab("dissolve-b.jpg")]);
+    resetDissolve();
+  } catch (e) { /* no photos shipped — synthetic scenes remain */ }
+}
 function resetDissolve() {
   stopDissolvePlay();
   const nP = state.w * state.h;
   DIS.thresh = new Float32Array(nP);
   for (let p = 0; p < nP; p++) DIS.thresh[p] = (xorshift() >>> 8) / 16777216;
-  setSlot("A", synthFrame(0));
-  setSlot("B", synthFrame(1));
+  setSlot("A", DPHOTOS.a ? bitmapToFrame(DPHOTOS.a) : synthFrame(0));
+  setSlot("B", DPHOTOS.b ? bitmapToFrame(DPHOTOS.b) : synthFrame(1));
   document.getElementById("dissolveT").value = 0;
   dissolveFrame();
 }
@@ -1550,11 +1584,17 @@ async function exportCoordinate() {
     const verdict = ratio > 1.5
       ? `this frame is ${(100 - 100 / ratio).toFixed(1)}% pattern — the signature of meaning`
       : `barely compressible — pure information with no pattern: the signature of noise`;
+    // Kolmogorov counting bound: at most 256^K frames have a description ≤ K bytes
+    const L256 = Math.log10(256);
+    const islandExp = Math.round(payloadBytes * L256);
+    const sliverExp = Math.round((card.rawBytes - payloadBytes) * L256);
     document.getElementById("coordInfo").innerHTML = `
       <div><span class="k">exported</span><span class="v"><b>${a.download}</b></span></div>
       <div><span class="k">raw index</span><span class="v">${fmtBig(card.rawBytes)} bytes</span></div>
       <div><span class="k">coordinate</span><span class="v">${fmtBig(payloadBytes)} bytes (${ratio.toFixed(2)}× smaller)</span></div>
-      <div><span class="k">reading</span><span class="v">${verdict}</span></div>`;
+      <div><span class="k">reading</span><span class="v">${verdict}</span></div>
+      <div><span class="k">cartography</span><span class="v">at most 10^${fmtBig(islandExp)} frames compress this well —
+        the island of the equally-compressible is a 10^-${fmtBig(sliverExp)} sliver of the space (a provable counting bound, not an estimate)</span></div>`;
   } finally { btn.disabled = false; }
 }
 async function importCoordinate(file) {
@@ -2813,6 +2853,7 @@ document.getElementById("archiveList").addEventListener("click", e => {
 });
 loadArchive();
 renderDaily();
+loadDissolvePhotos();
 loadFromHash();
 </script>
 </body>

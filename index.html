@@ -33,8 +33,8 @@
     background: var(--page);
     color: var(--ink-2);
     font-family: var(--font);
-    font-size: 15px;
-    line-height: 1.55;
+    font-size: clamp(14px, 1.35vw, 16.5px);
+    line-height: 1.6;
   }
   ::selection { background: var(--accent-dim); color: var(--ink); }
 
@@ -83,13 +83,14 @@
   section { padding: 44px 0 12px; border-bottom: 1px solid var(--grid); scroll-margin-top: 136px; }
   section:last-of-type { border-bottom: none; }
   h2 {
-    font-size: 21px; font-weight: 700; color: var(--ink); margin-bottom: 4px;
+    font-size: clamp(19px, 2.4vw, 25px); font-weight: 700; color: var(--ink);
+    margin-bottom: 6px; line-height: 1.25; text-wrap: balance;
   }
   .kicker {
     font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
     text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
   }
-  .lede { max-width: 720px; color: var(--ink-2); margin-bottom: 22px; }
+  .lede { max-width: 70ch; color: var(--ink-2); margin-bottom: 22px; line-height: 1.65; }
   .lede em { color: var(--ink); font-style: normal; font-weight: 600; }
 
   /* ---------- stat tiles ---------- */
@@ -103,8 +104,7 @@
   .tile .value small { font-size: 13px; color: var(--ink-2); font-weight: 400; }
   .tile .value .nb { white-space: nowrap; }
   .tile.hero { grid-column: 1 / -1; }
-  .tile.hero .value { font-size: 42px; line-height: 1.15; }
-  @media (max-width: 520px) { .tile.hero .value { font-size: 26px; } }
+  .tile.hero .value { font-size: clamp(24px, 4.6vw, 44px); line-height: 1.15; }
   .tile.hero .sub { font-size: 13px; color: var(--muted); margin-top: 6px; font-family: var(--mono); }
   sup { font-size: 0.55em; }
 
@@ -267,6 +267,28 @@
   .tour-nav { display: flex; gap: 8px; align-items: center; }
   .tour-nav .spacer { flex: 1; }
   .tour-card button:disabled { opacity: 0.35; cursor: default; }
+
+  /* ---------- responsive layout & readability ---------- */
+  @media (max-width: 760px) {
+    nav.sections { flex-wrap: nowrap; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    nav.sections::-webkit-scrollbar { display: none; }
+    nav.sections a { white-space: nowrap; }
+    .header-total { display: none; }
+    section { scroll-margin-top: 100px; }
+  }
+  @media (max-width: 640px) {
+    .ladder-row { grid-template-columns: 1fr 80px; row-gap: 2px; }
+    .ladder-row .name { grid-column: 1 / -1; padding-top: 6px; }
+    .slots { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 520px) {
+    .info-list div { flex-direction: column; gap: 2px; }
+    .info-list .k { min-width: 0; }
+    header { padding: 10px 16px; }
+    main { padding-left: 16px; padding-right: 16px; }
+    nav.sections { padding: 0 16px; }
+    .tile.hero .sub { font-size: 11.5px; }
+  }
 
   footer {
     max-width: 1060px; margin: 0 auto; padding: 30px 24px 60px;
@@ -569,6 +591,16 @@
       Try both: address a photograph, open it in the viewer, export. Then press
       <code>random</code> in the viewer and export again — compare the two coordinate sizes.
     </div>
+  </div>
+
+  <div class="card">
+    <h3>Specimen 001</h3>
+    <div class="note">
+      The founding coordinate of this archive: the maker's name, addressed at the Javen
+      Number's native resolution. A 3,499,200-byte frame carried by a 19.5&nbsp;KB card —
+      99.4% pattern. sha-256 <span class="mono">4b35a4d0fe9c3564…</span>
+    </div>
+    <button class="primary" id="specimenBtn">◈ re-render specimen 001 from its coordinate</button>
   </div>
 </section>
 
@@ -2352,6 +2384,19 @@ document.getElementById("coordImportBtn").addEventListener("click",
   () => document.getElementById("coordInput").click());
 document.getElementById("coordInput").addEventListener("change", e => {
   if (e.target.files[0]) importCoordinate(e.target.files[0]);
+});
+document.getElementById("specimenBtn").addEventListener("click", async () => {
+  const btn = document.getElementById("specimenBtn");
+  btn.disabled = true;
+  try {
+    const res = await fetch("specimens/specimen-001.javen");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const blob = await res.blob();
+    await importCoordinate(new File([blob], "specimen-001.javen", { type: "application/json" }));
+  } catch (e) {
+    document.getElementById("coordInfo").innerHTML =
+      `<div><span class="k">error</span><span class="v">couldn't fetch the specimen (${e.message}) — this button needs the page served over http(s), not opened as a local file</span></div>`;
+  } finally { btn.disabled = false; }
 });
 
 /* finishable universe wiring */

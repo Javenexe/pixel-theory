@@ -1,0 +1,16 @@
+{
+  "format": "javen-archive-v1",
+  "note": "The public ledger of witnessed frames. The repository is the ledger; the git history is the provenance chain. See CONTRIBUTING.md to submit a specimen by pull request.",
+  "specimens": [
+    {
+      "id": 1,
+      "title": "JAVENEXE",
+      "witness": "Javen",
+      "space": "1080x1080",
+      "sha256": "4b35a4d0fe9c3564863945834a90153b06c15464b42ee47bceaccb566aff08d5",
+      "date": "2026-07-08",
+      "file": "specimen-001.javen",
+      "note": "The founding coordinate: the maker's name, addressed at the Javen Number's native resolution. 3,499,200 bytes of frame carried by a 19.5 KB card."
+    }
+  ]
+}

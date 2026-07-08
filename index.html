@@ -341,6 +341,7 @@
   <a href="#film">A Film's Path</a>
   <a href="#registry">Witness Registry</a>
   <a href="#words">Your Words</a>
+  <a href="essay.html">The Essay</a>
   <a href="#" id="tourBtn" style="color:var(--accent);font-weight:600">✦ take the tour</a>
 </nav>
 
@@ -724,8 +725,23 @@
     play: since every possible fake already exists in the set, no frame can prove anything
     about itself — detection is mathematically doomed. What a frame cannot fake is a
     <em>signature on a witnessing</em>: proof that someone vouched for this frame at this
-    moment. Provenance, not detection. <em>Local for now; a public ledger when published.</em>
+    moment. Provenance, not detection. <em>The public ledger has begun — see the archive below.</em>
   </p>
+
+  <div class="card">
+    <h3>The Specimen Archive — the public ledger</h3>
+    <div class="note">
+      Frames witnessed and submitted by pull request. There is no database: the repository is
+      the ledger, and the git history is the provenance chain. Every specimen is verifiable
+      from its coordinate and signature alone.
+    </div>
+    <div id="archiveList"><div class="hint">loading the archive…</div></div>
+    <div class="hint" style="margin-top:10px">
+      submit your own: claim a frame, export its coordinate and claim file, and open a pull
+      request — <a href="https://github.com/Javenexe/pixel-theory/blob/main/CONTRIBUTING.md"
+      style="color:var(--accent)">instructions</a>
+    </div>
+  </div>
 
   <div class="card">
     <div class="btn-row" style="align-items:center">
@@ -776,7 +792,9 @@
   <p><b style="color:var(--ink)">Why no shortcut exists.</b> The address of an arbitrary frame
   carries exactly as much information as the frame itself (the pigeonhole principle). To find a
   specific photograph in the set, you must already possess it. The map is the territory.</p>
-  <p class="mono">pixeltheory · companion CLI: pixeltheory.py · everything runs locally in your browser</p>
+  <p class="mono">pixeltheory · <a href="essay.html" style="color:var(--accent)">read the essay</a> ·
+  <a href="https://github.com/Javenexe/pixel-theory" style="color:var(--accent)">source &amp; specimen archive</a> ·
+  companion CLI: pixeltheory.py · everything runs locally in your browser</p>
 </footer>
 
 <div class="tour-card" id="tourCard" style="display:none">
@@ -1910,6 +1928,7 @@ function renderRegistry() {
       <div class="actions">
         ${c.payload || c.stored ? `<button data-view="${i}">view</button>` : ""}
         ${c.sig ? `<button data-verify="${i}">verify</button>` : ""}
+        ${c.sig ? `<button data-claimfile="${i}" title="download a PR-ready claim file for the public archive">↓ claim</button>` : ""}
         <button data-del="${i}">✕</button>
       </div>
     </div>`).join("");
@@ -1997,6 +2016,66 @@ async function viewClaim(i) {
   state.frame.set(bytes);
   paintFrame(); updateFrameInfo();
   document.getElementById("viewer").scrollIntoView();
+}
+
+/* ================= the specimen archive (public ledger) ================= */
+async function loadArchive() {
+  const list = document.getElementById("archiveList");
+  try {
+    const res = await fetch("specimens/manifest.json");
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const manifest = await res.json();
+    if (!manifest.specimens || !manifest.specimens.length) {
+      list.innerHTML = '<div class="hint">the archive is empty — be the first to submit</div>';
+      return;
+    }
+    list.innerHTML = manifest.specimens.map(s => `
+      <div class="claim-row">
+        <div>
+          <div class="who">№ ${String(s.id).padStart(3, "0")} · ${s.title}
+            <span style="color:var(--muted);font-weight:400;font-size:12px">· witnessed by ${s.witness} · ${s.date} · ${s.space}</span></div>
+          <div class="what">sha-256 ${s.sha256.slice(0, 20)}… ${s.sig ? "· signed" : ""}</div>
+          ${s.note ? `<div class="what" style="color:var(--ink-2)">${s.note}</div>` : ""}
+        </div>
+        <div class="actions"><button data-specimen="${s.file}">render</button></div>
+      </div>`).join("");
+  } catch (e) {
+    list.innerHTML = `<div class="hint">archive unavailable (${e.message}) — it loads when the page is served over http(s)</div>`;
+  }
+}
+async function renderSpecimen(file) {
+  try {
+    const res = await fetch("specimens/" + file);
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    const blob = await res.blob();
+    await importCoordinate(new File([blob], file, { type: "application/json" }));
+  } catch (e) {
+    document.getElementById("coordInfo").innerHTML =
+      `<div><span class="k">error</span><span class="v">couldn't fetch ${file}: ${e.message}</span></div>`;
+  }
+}
+function downloadClaimFile(i) {
+  const c = loadRegistry()[i];
+  if (!c || !c.sig) return;
+  const claim = {
+    format: "javen-claim-v1",
+    title: "",
+    witness: c.name,
+    space: c.space,
+    sha256: c.sha,
+    ts: c.ts,
+    sig: c.sig,
+    pub: c.pub,
+    date: new Date(c.ts).toISOString().slice(0, 10),
+    file: "specimen-NNN.javen",
+    note: "",
+  };
+  const blob = new Blob([JSON.stringify(claim, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `claim-${c.sha.slice(0, 8)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
 }
 
 /* ================= section 12: your words ================= */
@@ -2246,8 +2325,10 @@ document.getElementById("claimList").addEventListener("click", e => {
   const view = e.target.closest("button[data-view]");
   const del = e.target.closest("button[data-del]");
   const ver = e.target.closest("button[data-verify]");
+  const cf = e.target.closest("button[data-claimfile]");
   if (view) viewClaim(+view.dataset.view);
   if (ver) verifyClaimUI(+ver.dataset.verify);
+  if (cf) downloadClaimFile(+cf.dataset.claimfile);
   if (del) {
     const reg = loadRegistry();
     const [gone] = reg.splice(+del.dataset.del, 1);
@@ -2429,6 +2510,11 @@ document.getElementById("claimName").value = localStorage.getItem("javenWitness"
 renderRegistry();
 witnessKeys().then(k => { document.getElementById("witnessKey").textContent = k.fp; })
   .catch(() => { document.getElementById("witnessKey").textContent = "unavailable in this browser"; });
+document.getElementById("archiveList").addEventListener("click", e => {
+  const b = e.target.closest("button[data-specimen]");
+  if (b) renderSpecimen(b.dataset.specimen);
+});
+loadArchive();
 loadFromHash();
 </script>
 </body>

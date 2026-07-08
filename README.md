@@ -1,5 +1,15 @@
 # Pixel Theory
 
+**[The explorer](https://javenexe.github.io/pixel-theory/)** ·
+**[The essay](https://javenexe.github.io/pixel-theory/essay.html)** ·
+**[Submit a specimen](CONTRIBUTING.md)**
+
+The **Specimen Archive** is the public ledger of witnessed frames: coordinates
+live in [`specimens/`](specimens/), the manifest is the index, and the git
+history is the provenance chain. Claims are signed with browser-generated
+ECDSA keys and are verifiable by anyone. See [CONTRIBUTING.md](CONTRIBUTING.md)
+to submit yours by pull request.
+
 An enumeration engine for the **total image space** of a fixed resolution — the
 set of every image that can exist at that resolution. For 1080×1080 RGB that
 count is the **"Javen Number"**: 2^27,993,600 ≈ 1.93 × 10^8,426,913 (an

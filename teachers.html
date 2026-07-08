@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Theory — for educators</title>
+<meta name="description" content="A one-page teacher's guide: using the Pixel Theory explorer to teach combinatorics, information theory, probability, cryptography, and AI literacy.">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230d0d0d'/%3E%3Crect x='1' y='1' width='4' height='4' fill='%233987e5'/%3E%3Crect x='6' y='1' width='4' height='4' fill='%23c3c2b7'/%3E%3Crect x='11' y='6' width='4' height='4' fill='%233987e5'/%3E%3Crect x='1' y='11' width='4' height='4' fill='%23555'/%3E%3Crect x='6' y='6' width='4' height='4' fill='%23888'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7;
+    --muted: #898781; --grid: #2c2c2a; --accent: #3987e5;
+    --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--page); color: var(--ink-2); font-family: var(--font);
+    font-size: clamp(15px, 1.5vw, 17px); line-height: 1.7;
+  }
+  .top {
+    padding: 14px clamp(16px, 4vw, 24px); border-bottom: 1px solid var(--grid);
+    display: flex; gap: 16px; align-items: baseline;
+  }
+  .top a { color: var(--muted); text-decoration: none; font-size: 13px; }
+  .top a:hover { color: var(--accent); }
+  .top .brand { font-weight: 700; letter-spacing: 0.14em; color: var(--ink); font-size: 13px; }
+  .top .brand span { color: var(--accent); }
+  main { max-width: 860px; margin: 0 auto; padding: 50px clamp(16px, 4vw, 24px) 80px; }
+  .kicker {
+    font-size: 12px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 12px;
+  }
+  h1 { color: var(--ink); font-size: clamp(26px, 4vw, 36px); line-height: 1.15; margin-bottom: 12px; }
+  h2 { color: var(--ink); font-size: clamp(18px, 2.4vw, 23px); margin: 40px 0 12px; }
+  p { margin-bottom: 16px; max-width: 70ch; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  em { color: var(--ink); font-style: normal; font-weight: 600; }
+  .table-wrap { overflow-x: auto; margin: 18px 0; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; min-width: 640px; }
+  th {
+    text-align: left; color: var(--muted); font-weight: 600; font-size: 12px;
+    text-transform: uppercase; letter-spacing: 0.08em;
+    padding: 8px 14px 8px 0; border-bottom: 1px solid var(--grid);
+  }
+  td { padding: 10px 14px 10px 0; border-bottom: 1px solid var(--grid); vertical-align: top; }
+  td:first-child { white-space: nowrap; color: var(--ink); font-weight: 600; }
+  ol { margin: 0 0 16px 22px; max-width: 70ch; }
+  li { margin-bottom: 14px; }
+  li b { color: var(--ink); }
+  .note {
+    margin: 24px 0; padding: 14px 18px; border-left: 2px solid var(--accent);
+    background: var(--surface); border-radius: 0 8px 8px 0; font-size: 14.5px; max-width: 70ch;
+  }
+  @media print {
+    :root { --page: #ffffff; --surface: #f4f4f2; --ink: #000000; --ink-2: #222222;
+            --muted: #555555; --grid: #cccccc; --accent: #1c5cab; }
+    .top { display: none; }
+    body { font-size: 11.5pt; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top">
+  <span class="brand">PIXEL<span>THEORY</span></span>
+  <a href="index.html">← the explorer</a>
+  <a href="essay.html">the essay</a>
+  <a href="https://github.com/Javenexe/pixel-theory">source</a>
+</div>
+
+<main>
+  <div class="kicker">For educators</div>
+  <h1>Teaching with the complete image space</h1>
+
+  <p><a href="index.html">The Pixel Theory explorer</a> is a free, single-file
+  interactive that makes several famously abstract ideas physical: combinatorial
+  explosion, the pigeonhole principle, Kolmogorov complexity, sampling from
+  enormous spaces, digital signatures, and what AI image generators actually do.
+  It needs no accounts and no installation, runs entirely in the browser, and
+  sends no data anywhere. It works offline from a saved copy.</p>
+
+  <p>The premise takes one minute to state: an RGB pixel has 16,777,216 possible
+  values, so a 1080×1080 image grid has 16,777,216<sup>1,166,400</sup> possible
+  states — a finite number with 8.4 million digits, containing every photograph
+  that has ever been or could ever be taken at that resolution. Every section of
+  the site is an instrument for feeling one consequence of that fact.</p>
+
+  <h2>Concept map</h2>
+  <div class="table-wrap">
+  <table>
+    <tr><th>Section</th><th>Concept</th><th>The question to pose</th></tr>
+    <tr><td>01 · The Space</td><td>Exponents, combinatorics, scientific notation</td>
+      <td>Why does adding one row and one column <em>multiply</em> the count by 10<sup>15,612</sup> instead of adding to it?</td></tr>
+    <tr><td>01 · Futility meter</td><td>Orders of magnitude</td>
+      <td>Every atom in the universe computing since the Big Bang covers ~10<sup>−8,426,800</sup> of the space. Why is this not an engineering problem?</td></tr>
+    <tr><td>02 · Frame Viewer</td><td>Place value, number bases, bijections</td>
+      <td>Press +1 and find the pixel that changed. Why that pixel? What is this in base 256?</td></tr>
+    <tr><td>03 · Static Channel</td><td>Probability, uniform sampling</td>
+      <td>Why is a random frame always noise? What fraction of frames look like <em>anything</em>?</td></tr>
+    <tr><td>04 · Address a Photograph</td><td>Functions and inverses</td>
+      <td>Encoding and decoding are exact inverses — so did the camera create the image, or find it?</td></tr>
+    <tr><td>05 · Islands of Meaning</td><td>Redundancy, error tolerance</td>
+      <td>Why is a photo still recognizable with 30% of its pixels destroyed, and what does that say about information in images?</td></tr>
+    <tr><td>07 · Coordinates</td><td>Pigeonhole principle, entropy, compression</td>
+      <td>A photo's address compresses 70×; noise compresses 1.000×. What is compression actually measuring?</td></tr>
+    <tr><td>08 · A Finishable Universe</td><td>Enumeration, scale contrast</td>
+      <td>You just finished the 1×1 universe in 17 seconds. How long is 2×2 at the same speed? (Work it out before pressing the button.)</td></tr>
+    <tr><td>09 · Generators</td><td>AI literacy</td>
+      <td>Noise → image needs a map; the map is the model's weights. What did training actually produce?</td></tr>
+    <tr><td>10 · A Film's Path</td><td>Sequences, measure</td>
+      <td>All of cinema is ~10<sup>17</sup> frames. What fraction of the space has every movie ever made explored?</td></tr>
+    <tr><td>11 · Witness Registry</td><td>Hashing, digital signatures, provenance</td>
+      <td>If every fake image already exists in the set, can any analysis of pixels prove a photo is real? What can?</td></tr>
+    <tr><td>12 · Your Words</td><td>Text as data, encoding</td>
+      <td>Your sentence has held its number since before language. What does it mean to “write” it?</td></tr>
+  </table>
+  </div>
+
+  <h2>Classroom exercises</h2>
+  <ol>
+    <li><b>The number by hand (middle school+).</b> Compute the frame count for a
+    2×2 grid of <em>black-or-white</em> pixels (2<sup>4</sup> = 16) and draw all
+    sixteen. Then compute 2×2 RGB with logarithms (16,777,216<sup>4</sup> ≈
+    7.9 × 10<sup>28</sup>) and check against section 01 at 2×2.</li>
+
+    <li><b>The birthday problem in the static (high school).</b> If the whole
+    class watches the Static Channel for a year, estimate the probability any
+    two students ever see the same frame. Compare with the classic birthday
+    paradox — why does the intuition break here?</li>
+
+    <li><b>Meaning is compressibility (high school+).</b> Address a class photo
+    in section 04, export its coordinate in section 07, and record the size.
+    Press <em>random</em> and export again. Explain the difference using the
+    pigeonhole principle: why can't <em>every</em> frame have a small coordinate?</li>
+
+    <li><b>Finish a universe together (any level).</b> Run section 08 as a
+    class. Before starting, have students predict the sweep time for 2×2 at a
+    million frames per second (≈ 2.5 × 10<sup>15</sup> years), then let the 1×1
+    finish in front of them. Discuss: what does "finishable" depend on?</li>
+
+    <li><b>Base-256 place value (middle school+).</b> In the viewer, render
+    frame 0, then +1 repeatedly. Predict when the <em>green</em> channel of the
+    last pixel first changes (after 256 steps). Connect to odometers and
+    decimal place value.</li>
+
+    <li><b>The provenance debate (media literacy).</b> Proposition: “Since every
+    possible fake photograph already exists as a member of this set, photo
+    evidence is dead.” Have one side argue detection, the other provenance,
+    then demo section 11's signed claims and tamper-failure.</li>
+
+    <li><b>Meet at a phrase (any level).</b> Everyone enters the same seed
+    phrase in section 13 on their own device and confirms they see the same
+    frame — then changes one letter. Discuss hash functions and sensitivity.</li>
+  </ol>
+
+  <h2>Practical notes</h2>
+  <p>Suggested bands: exercises 1, 4, 5 from ~age 12; 2, 3, 7 for high school;
+  3, 6 and the <a href="essay.html">essay</a> for senior secondary and
+  undergraduate courses in CS, statistics, or media studies. The 1×1 sweep and
+  the atlas are reliable crowd-pleasers for open days.</p>
+
+  <p>Everything runs client-side: no student data leaves the machine, and a
+  saved copy of the page works without internet. The source is
+  <a href="https://github.com/Javenexe/pixel-theory">openly available</a> —
+  classes that want to go deeper can read exactly how the enumeration,
+  compression, and signatures are implemented, or submit a class-witnessed
+  frame to the public Specimen Archive by pull request.</p>
+
+  <p class="note">This page prints cleanly — use your browser's print function
+  for handouts.</p>
+</main>
+
+</body>
+</html>

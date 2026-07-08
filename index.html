@@ -1,0 +1,2390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pixel Theory — The Complete Image Space</title>
+<meta name="description" content="Every image that can exist at a given resolution, as an explorable set of instruments. The Javen Number: 16,777,216^1,166,400 — every 1080×1080 image, addressed.">
+<meta property="og:title" content="Pixel Theory — The Complete Image Space">
+<meta property="og:description" content="Every photograph ever taken already had an address. Explore the finite set of all possible images: render frames by number, tune into the static, address your own photos, and finish the only universe a human can complete.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0d0d0d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%230d0d0d'/%3E%3Crect x='1' y='1' width='4' height='4' fill='%233987e5'/%3E%3Crect x='6' y='1' width='4' height='4' fill='%23c3c2b7'/%3E%3Crect x='11' y='6' width='4' height='4' fill='%233987e5'/%3E%3Crect x='1' y='11' width='4' height='4' fill='%23555'/%3E%3Crect x='6' y='6' width='4' height='4' fill='%23888'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --page:        #0d0d0d;
+    --surface:     #1a1a19;
+    --surface-2:   #222221;
+    --ink:         #ffffff;
+    --ink-2:       #c3c2b7;
+    --muted:       #898781;
+    --grid:        #2c2c2a;
+    --baseline:    #383835;
+    --ring:        rgba(255,255,255,0.10);
+    --accent:      #3987e5;
+    --accent-dim:  #184f95;
+    --good:        #0ca30c;
+    --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--page);
+    color: var(--ink-2);
+    font-family: var(--font);
+    font-size: 15px;
+    line-height: 1.55;
+  }
+  ::selection { background: var(--accent-dim); color: var(--ink); }
+
+  /* ---------- header ---------- */
+  header {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(13,13,13,0.92);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--grid);
+    padding: 10px 24px;
+    display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+  }
+  header h1 {
+    font-size: 15px; font-weight: 700; letter-spacing: 0.14em;
+    color: var(--ink); white-space: nowrap;
+  }
+  header h1 span { color: var(--accent); }
+  .space-picker { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .space-picker label { font-size: 12px; color: var(--muted); }
+  select, input[type="text"], input[type="number"] {
+    background: var(--surface); color: var(--ink);
+    border: 1px solid var(--baseline); border-radius: 6px;
+    padding: 5px 8px; font-family: var(--mono); font-size: 13px;
+  }
+  select:focus, input:focus { outline: 1px solid var(--accent); }
+  input.dim { width: 64px; }
+  .header-total {
+    margin-left: auto; font-family: var(--mono); font-size: 13px;
+    color: var(--muted); white-space: nowrap;
+  }
+  .header-total b { color: var(--ink); font-weight: 600; }
+
+  nav.sections {
+    position: sticky; top: 53px; z-index: 40;
+    display: flex; gap: 2px; padding: 0 24px; flex-wrap: wrap;
+    background: rgba(13,13,13,0.92); backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--grid);
+  }
+  nav.sections a {
+    color: var(--muted); text-decoration: none; font-size: 12.5px;
+    padding: 8px 12px; border-bottom: 2px solid transparent;
+  }
+  nav.sections a:hover { color: var(--ink); border-bottom-color: var(--baseline); }
+
+  main { max-width: 1060px; margin: 0 auto; padding: 12px 24px 80px; }
+  section { padding: 44px 0 12px; border-bottom: 1px solid var(--grid); scroll-margin-top: 136px; }
+  section:last-of-type { border-bottom: none; }
+  h2 {
+    font-size: 21px; font-weight: 700; color: var(--ink); margin-bottom: 4px;
+  }
+  .kicker {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 6px;
+  }
+  .lede { max-width: 720px; color: var(--ink-2); margin-bottom: 22px; }
+  .lede em { color: var(--ink); font-style: normal; font-weight: 600; }
+
+  /* ---------- stat tiles ---------- */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-bottom: 22px; }
+  .tile {
+    background: var(--surface); border: 1px solid var(--ring);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .tile .label { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+  .tile .value { font-size: 21px; font-weight: 600; color: var(--ink); }
+  .tile .value small { font-size: 13px; color: var(--ink-2); font-weight: 400; }
+  .tile .value .nb { white-space: nowrap; }
+  .tile.hero { grid-column: 1 / -1; }
+  .tile.hero .value { font-size: 42px; line-height: 1.15; }
+  @media (max-width: 520px) { .tile.hero .value { font-size: 26px; } }
+  .tile.hero .sub { font-size: 13px; color: var(--muted); margin-top: 6px; font-family: var(--mono); }
+  sup { font-size: 0.55em; }
+
+  /* ---------- ladder ---------- */
+  .card {
+    background: var(--surface); border: 1px solid var(--ring);
+    border-radius: 10px; padding: 18px 20px; margin-bottom: 18px;
+  }
+  .card h3 { font-size: 14px; color: var(--ink); margin-bottom: 4px; }
+  .card .note { font-size: 12.5px; color: var(--muted); margin-bottom: 14px; }
+  .ladder-row { display: grid; grid-template-columns: 250px 1fr 110px; gap: 10px; align-items: center; padding: 5px 0; }
+  .ladder-row .name { font-size: 13px; color: var(--ink-2); }
+  .ladder-row .bar-track { height: 14px; position: relative; }
+  .ladder-row .bar {
+    height: 14px; background: var(--accent); border-radius: 0 4px 4px 0;
+    min-width: 1px; transition: width 0.4s ease;
+  }
+  .ladder-row.javen .bar { background: var(--accent); }
+  .ladder-row .val { font-family: var(--mono); font-size: 12px; color: var(--muted); text-align: right; }
+
+  /* ---------- meter ---------- */
+  .meter-track {
+    height: 18px; background: var(--accent-dim); border-radius: 9px;
+    overflow: hidden; position: relative; margin: 10px 0 6px;
+  }
+  .meter-fill { height: 100%; background: var(--accent); border-radius: 9px 0 0 9px; width: 0%; }
+  .meter-caption { font-size: 12.5px; color: var(--muted); font-family: var(--mono); }
+
+  /* ---------- viewer layout ---------- */
+  .viewer { display: grid; grid-template-columns: minmax(280px, 520px) 1fr; gap: 22px; align-items: start; }
+  @media (max-width: 760px) { .viewer { grid-template-columns: 1fr; } }
+  .canvas-frame {
+    background: var(--surface); border: 1px solid var(--ring); border-radius: 10px;
+    padding: 10px; display: flex; align-items: center; justify-content: center;
+  }
+  canvas {
+    image-rendering: pixelated;
+    width: 100%; height: auto; max-width: 500px;
+    background: #000; border-radius: 4px; display: block;
+  }
+  .controls { display: flex; flex-direction: column; gap: 12px; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  button {
+    background: var(--surface-2); color: var(--ink);
+    border: 1px solid var(--baseline); border-radius: 7px;
+    padding: 7px 14px; font-size: 13px; font-family: var(--font);
+    cursor: pointer;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent-dim); border-color: var(--accent); }
+  button.primary:hover { background: var(--accent); color: #fff; }
+  button.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .index-input-row { display: flex; gap: 8px; }
+  .index-input-row input { flex: 1; min-width: 0; }
+  .info-list { font-family: var(--mono); font-size: 12.5px; }
+  .info-list div { padding: 5px 0; border-bottom: 1px solid var(--grid); display: flex; gap: 10px; }
+  .info-list div:last-child { border-bottom: none; }
+  .info-list .k { color: var(--muted); min-width: 110px; flex-shrink: 0; }
+  .info-list .v { color: var(--ink-2); word-break: break-all; }
+  .info-list .v b { color: var(--ink); font-weight: 600; }
+  .hint { font-size: 12px; color: var(--muted); }
+  .hint code { font-family: var(--mono); color: var(--ink-2); }
+
+  /* ---------- static channel ---------- */
+  .static-stats { display: flex; gap: 24px; flex-wrap: wrap; margin-top: 12px; }
+  .static-stats .s { font-family: var(--mono); font-size: 13px; }
+  .static-stats .s .k { color: var(--muted); font-size: 11px; display: block; font-family: var(--font); }
+  .static-stats .s .v { color: var(--ink); font-size: 17px; font-weight: 600; }
+  .poem {
+    margin-top: 16px; padding: 14px 18px; border-left: 2px solid var(--accent);
+    color: var(--ink-2); font-size: 14px; max-width: 640px; background: var(--surface);
+    border-radius: 0 8px 8px 0;
+  }
+
+  /* ---------- dropzone ---------- */
+  .dropzone {
+    border: 1.5px dashed var(--baseline); border-radius: 10px;
+    padding: 34px 20px; text-align: center; color: var(--muted);
+    cursor: pointer; transition: border-color 0.15s, background 0.15s;
+    margin-bottom: 18px;
+  }
+  .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: var(--surface); color: var(--ink-2); }
+  .dropzone input { display: none; }
+
+  /* ---------- corruption ---------- */
+  .slider-row { display: flex; align-items: center; gap: 14px; margin: 10px 0; }
+  input[type="range"] { flex: 1; accent-color: var(--accent); }
+  .slider-row .pct { font-family: var(--mono); font-size: 14px; color: var(--ink); min-width: 64px; text-align: right; }
+
+  /* ---------- dissolve ---------- */
+  .slots { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; max-width: 640px; }
+  .slot {
+    background: var(--surface); border: 1px solid var(--ring);
+    border-radius: 10px; padding: 10px; text-align: center;
+  }
+  .slot .slot-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--muted); margin-bottom: 8px;
+  }
+  .slot .btn-row { justify-content: center; margin-top: 10px; }
+  .slot button { padding: 4px 10px; font-size: 12px; }
+  .seg { display: inline-flex; border: 1px solid var(--baseline); border-radius: 8px; overflow: hidden; align-self: flex-start; }
+  .seg button { border: none; border-radius: 0; background: var(--surface-2); }
+  .seg button.active { background: var(--accent); color: #fff; }
+
+  /* ---------- finishable universe ---------- */
+  .swatch {
+    width: 100%; max-width: 500px; aspect-ratio: 1;
+    border-radius: 6px; background: #000;
+  }
+  .atlas-wrap { position: relative; margin-top: 14px; }
+  .atlas-wrap canvas { width: 100%; max-width: 100%; cursor: crosshair; image-rendering: auto; }
+  .atlas-cursor {
+    position: absolute; width: 16px; height: 16px;
+    border: 2px solid #fff; border-radius: 50%;
+    box-shadow: 0 0 0 1.5px #000, inset 0 0 0 1.5px #000;
+    pointer-events: none; transform: translate(-50%, -50%); display: none;
+  }
+  .complete { color: var(--good); font-weight: 600; }
+
+  /* ---------- film path ---------- */
+  .filmstrip {
+    display: flex; gap: 6px; overflow-x: auto; padding: 4px 0 10px;
+  }
+  .filmstrip canvas {
+    width: 96px; height: 96px; flex-shrink: 0;
+    border-radius: 4px; max-width: none;
+  }
+  .mini-chart-label { font-size: 12px; color: var(--muted); margin: 12px 0 4px; }
+  canvas.mini-chart {
+    width: 100%; max-width: 100%; height: 90px;
+    image-rendering: auto; background: transparent; border-radius: 0;
+  }
+
+  /* ---------- registry ---------- */
+  .claim-row {
+    display: grid; grid-template-columns: 1fr auto; gap: 4px 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--grid); align-items: center;
+  }
+  .claim-row:last-child { border-bottom: none; }
+  .claim-row .who { color: var(--ink); font-weight: 600; font-size: 13.5px; }
+  .claim-row .what { font-family: var(--mono); font-size: 11.5px; color: var(--muted); word-break: break-all; }
+  .claim-row .actions { display: flex; gap: 6px; }
+  .claim-row .actions button { padding: 3px 9px; font-size: 12px; }
+
+  /* ---------- guided tour ---------- */
+  .tour-card {
+    position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%);
+    z-index: 100; max-width: 540px; width: calc(100% - 32px);
+    background: var(--surface-2); border: 1px solid var(--accent);
+    border-radius: 12px; padding: 16px 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.55);
+  }
+  .tour-card .tour-step {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--accent); margin-bottom: 4px;
+  }
+  .tour-card h4 { color: var(--ink); font-size: 15px; margin-bottom: 6px; }
+  .tour-card p { font-size: 13.5px; color: var(--ink-2); margin-bottom: 12px; }
+  .tour-nav { display: flex; gap: 8px; align-items: center; }
+  .tour-nav .spacer { flex: 1; }
+  .tour-card button:disabled { opacity: 0.35; cursor: default; }
+
+  footer {
+    max-width: 1060px; margin: 0 auto; padding: 30px 24px 60px;
+    color: var(--muted); font-size: 13px; border-top: 1px solid var(--grid);
+  }
+  footer p { max-width: 720px; margin-bottom: 10px; }
+  .mono { font-family: var(--mono); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>PIXEL<span>THEORY</span></h1>
+  <div class="space-picker">
+    <label for="preset">space</label>
+    <select id="preset">
+      <option value="2x2">2 × 2</option>
+      <option value="4x4">4 × 4</option>
+      <option value="8x8">8 × 8</option>
+      <option value="16x16">16 × 16</option>
+      <option value="32x32">32 × 32</option>
+      <option value="64x64">64 × 64</option>
+      <option value="128x128">128 × 128</option>
+      <option value="256x256" selected>256 × 256</option>
+      <option value="512x512">512 × 512</option>
+      <option value="1080x1080">1080 × 1080 — the Javen Number</option>
+      <option value="1081x1081">1081 × 1081</option>
+      <option value="1920x1080">1920 × 1080</option>
+      <option value="custom">custom…</option>
+    </select>
+    <span id="customDims" style="display:none">
+      <input type="number" id="customW" class="dim" min="1" max="4096" value="100"> ×
+      <input type="number" id="customH" class="dim" min="1" max="4096" value="100">
+      <button id="applyCustom">set</button>
+    </span>
+  </div>
+  <div class="header-total" id="headerTotal"></div>
+</header>
+
+<nav class="sections">
+  <a href="#space">The Space</a>
+  <a href="#viewer">Frame Viewer</a>
+  <a href="#static">The Static Channel</a>
+  <a href="#address">Address a Photograph</a>
+  <a href="#islands">Islands of Meaning</a>
+  <a href="#dissolve">The Dissolve</a>
+  <a href="#coords">Coordinates</a>
+  <a href="#universe">A Finishable Universe</a>
+  <a href="#navigator">Generators</a>
+  <a href="#film">A Film's Path</a>
+  <a href="#registry">Witness Registry</a>
+  <a href="#words">Your Words</a>
+  <a href="#" id="tourBtn" style="color:var(--accent);font-weight:600">✦ take the tour</a>
+</nav>
+
+<main>
+
+<!-- ============================ THE SPACE ============================ -->
+<section id="space">
+  <div class="kicker">01 · The Space</div>
+  <h2>Every image that can exist at this resolution</h2>
+  <p class="lede">
+    Each RGB pixel takes one of 256 × 256 × 256 = <em>16,777,216</em> values. A grid of
+    W × H pixels therefore has <em>16,777,216<sup>W·H</sup></em> possible states — a finite,
+    complete set containing every photograph ever taken at this resolution, every one that
+    never was, and an ocean of noise in between.
+  </p>
+
+  <div class="tiles">
+    <div class="tile hero">
+      <div class="label" id="heroLabel">Total distinct frames</div>
+      <div class="value" id="heroValue">—</div>
+      <div class="sub" id="heroSub"></div>
+    </div>
+    <div class="tile"><div class="label">Decimal digits in that count</div><div class="value" id="tDigits">—</div></div>
+    <div class="tile"><div class="label">Pixels per frame</div><div class="value" id="tPixels">—</div></div>
+    <div class="tile"><div class="label">Bits per frame</div><div class="value" id="tBits">—</div></div>
+    <div class="tile"><div class="label">Raw bytes per frame</div><div class="value" id="tBytes">—</div></div>
+    <div class="tile"><div class="label">One row + one column adds</div><div class="value" id="tGrow">—</div></div>
+  </div>
+
+  <div class="card">
+    <h3>Magnitude ladder</h3>
+    <div class="note">Bar length is proportional to the <b>number of digits</b> (log scale). Even with that handicap, the others barely register.</div>
+    <div id="ladder"></div>
+  </div>
+
+  <div class="card" id="futilityCard">
+    <h3>The futility meter</h3>
+    <div class="note" id="futilityNote"></div>
+    <div class="meter-track"><div class="meter-fill" id="futilityFill"></div></div>
+    <div class="meter-caption" id="futilityCaption"></div>
+  </div>
+</section>
+
+<!-- ============================ VIEWER ============================ -->
+<section id="viewer">
+  <div class="kicker">02 · Frame Viewer</div>
+  <h2>Render any frame by its address</h2>
+  <p class="lede">
+    Every frame <em>is</em> a number: its index laid out as base-256 bytes across the pixels.
+    The identifier and the image are the same object — which is why duplicates are impossible
+    and why nothing ever needs to be stored.
+  </p>
+
+  <div class="viewer">
+    <div class="canvas-frame"><canvas id="viewCanvas" width="256" height="256"></canvas></div>
+    <div class="controls">
+      <div class="index-input-row">
+        <input type="text" id="indexInput" placeholder="index — decimal, 0xHEX, 'random', 'max'">
+        <button class="primary" id="goBtn">render</button>
+      </div>
+      <div class="btn-row">
+        <button id="btnBlack">frame 0</button>
+        <button id="btnWhite">last frame</button>
+        <button id="btnRandom">random</button>
+        <button id="btnDec">−1</button>
+        <button id="btnInc">+1</button>
+        <button id="btnDownload">↓ PNG</button>
+        <button id="btnShare" title="copy a URL that IS this frame's address">⧉ link</button>
+        <button id="btnHex" title="copy the complete hex address — the entire frame as text">⧉ hex</button>
+      </div>
+      <div class="btn-row" style="align-items:center">
+        <button id="btnWalk">▶ walk</button>
+        <label class="hint" for="walkStep">step:</label>
+        <select id="walkStep">
+          <option value="0">+1 (one blue value)</option>
+          <option value="3">+1 pixel (2²⁴)</option>
+          <option value="row">+1 row of pixels</option>
+        </select>
+      </div>
+      <div class="info-list" id="frameInfo"></div>
+      <div class="hint" id="walkHint"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ STATIC ============================ -->
+<section id="static">
+  <div class="kicker">03 · The Static Channel</div>
+  <h2>Channel-surfing the whole of possibility</h2>
+  <p class="lede">
+    Uniform random samples from the space. This is what the dataset overwhelmingly
+    <em>is</em>: for every meaningful image, there are more frames of pure noise than there
+    are atoms in the universe, squared, and then some.
+  </p>
+
+  <div class="viewer">
+    <div class="canvas-frame"><canvas id="staticCanvas" width="256" height="256"></canvas></div>
+    <div class="controls">
+      <div class="btn-row">
+        <button class="primary" id="staticBtn">▶ tune in</button>
+        <button id="staticOnce">single sample</button>
+      </div>
+      <div class="static-stats">
+        <div class="s"><span class="k">frames witnessed</span><span class="v" id="stCount">0</span></div>
+        <div class="s"><span class="k">of the space explored</span><span class="v" id="stFraction">0%</span></div>
+        <div class="s"><span class="k">display rate</span><span class="v" id="stFps">—</span></div>
+      </div>
+      <div class="poem" id="staticPoem">
+        Every frame that flickers past is, almost surely, being seen for the first time in the
+        history of the universe — and will never be seen again. You are the sole witness of
+        each one.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ ADDRESS ============================ -->
+<section id="address">
+  <div class="kicker">04 · Address a Photograph</div>
+  <h2>Every image you have ever seen already has a coordinate</h2>
+  <p class="lede">
+    Drop in any photograph. It will be fitted to the current space and reversed into its
+    index — the exact position it has always occupied in the set. The photo isn't
+    <em>added</em> to the dataset; it is <em>found</em> there. A camera is a device for
+    looking up addresses.
+  </p>
+
+  <div class="dropzone" id="dropzone">
+    <input type="file" id="fileInput" accept="image/*,.javen,application/json">
+    drop an image or a .javen coordinate here, or click to choose · processed locally, never uploaded
+  </div>
+  <div class="hint" id="addressStatus" style="margin:-10px 0 18px"></div>
+
+  <div class="viewer" id="addressResult" style="display:none">
+    <div class="canvas-frame"><canvas id="addressCanvas" width="256" height="256"></canvas></div>
+    <div class="controls">
+      <div class="info-list" id="addressInfo"></div>
+      <div class="btn-row">
+        <button class="primary" id="sendToViewer">open in frame viewer</button>
+        <button id="sendToIslands">send to islands of meaning</button>
+      </div>
+      <div class="poem">
+        This exact arrangement of numbers was a member of the set before cameras existed —
+        before Earth existed. Taking the photograph didn't create it. It located it.
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ ISLANDS ============================ -->
+<section id="islands">
+  <div class="kicker">05 · Islands of Meaning</div>
+  <h2>How far does meaning reach into the noise?</h2>
+  <p class="lede">
+    Take a meaningful frame and corrupt a growing fraction of its pixels — each corrupted
+    pixel jumps to a random neighbor address. Meaning survives astonishing damage, then
+    dissolves. These islands of recognizability are real regions of the space — and they are
+    immeasurably small next to the ocean.
+  </p>
+
+  <div class="viewer">
+    <div class="canvas-frame"><canvas id="islandCanvas" width="256" height="256"></canvas></div>
+    <div class="controls">
+      <div class="btn-row">
+        <button id="pullFromViewer">use current viewer frame</button>
+      </div>
+      <div class="slider-row">
+        <input type="range" id="corruptSlider" min="0" max="100" value="0" step="0.5">
+        <span class="pct" id="corruptPct">0%</span>
+      </div>
+      <div class="hint">fraction of pixels replaced with random values</div>
+      <div class="info-list" id="islandInfo"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ DISSOLVE ============================ -->
+<section id="dissolve">
+  <div class="kicker">06 · The Dissolve</div>
+  <h2>The territory between two photographs</h2>
+  <p class="lede">
+    Pick two frames. Every path between them — every morph, every film cut, every animation
+    ever made — lies entirely inside the set. Here are three different roads between the same
+    two addresses. <em>Every intermediate frame is a member, with its own address.</em>
+  </p>
+
+  <div class="slots">
+    <div class="slot">
+      <div class="slot-label">Frame A</div>
+      <canvas id="slotACanvas"></canvas>
+      <div class="btn-row">
+        <button id="slotAFile">image…</button>
+        <button id="slotARandom">random</button>
+        <button id="slotAViewer">viewer</button>
+      </div>
+      <input type="file" id="slotAInput" accept="image/*" style="display:none">
+    </div>
+    <div class="slot">
+      <div class="slot-label">Frame B</div>
+      <canvas id="slotBCanvas"></canvas>
+      <div class="btn-row">
+        <button id="slotBFile">image…</button>
+        <button id="slotBRandom">random</button>
+        <button id="slotBViewer">viewer</button>
+      </div>
+      <input type="file" id="slotBInput" accept="image/*" style="display:none">
+    </div>
+  </div>
+
+  <div class="viewer">
+    <div class="canvas-frame"><canvas id="dissolveCanvas"></canvas></div>
+    <div class="controls">
+      <div class="seg" id="dissolveModes">
+        <button data-mode="blend" class="active">crossfade</button>
+        <button data-mode="numeric">index-space line</button>
+        <button data-mode="scatter">pixel defection</button>
+      </div>
+      <div class="slider-row">
+        <input type="range" id="dissolveT" min="0" max="1000" value="0">
+        <span class="pct" id="dissolvePct">0%</span>
+      </div>
+      <div class="btn-row"><button class="primary" id="dissolvePlay">▶ travel A → B</button></div>
+      <div class="hint" id="dissolveModeNote"></div>
+      <div class="info-list" id="dissolveInfo"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ COORDINATES ============================ -->
+<section id="coords">
+  <div class="kicker">07 · Coordinates</div>
+  <h2>Exchange addresses, not images</h2>
+  <p class="lede">
+    Export the viewer's current frame as a <em>coordinate card</em> — its exact index,
+    compressed. Anyone with the card re-renders the identical frame from the address alone.
+    And watch what compression reveals: a photograph's address shrinks dramatically; a noise
+    frame's address will not shrink at all. <em>Meaning is compressibility.</em>
+  </p>
+
+  <div class="card">
+    <div class="btn-row">
+      <button class="primary" id="coordExport">↓ export viewer frame as coordinate (.javen)</button>
+      <button id="coordImportBtn">import coordinate…</button>
+      <input type="file" id="coordInput" accept=".javen,application/json" style="display:none">
+    </div>
+    <div class="info-list" id="coordInfo" style="margin-top:12px"></div>
+    <div class="hint" style="margin-top:10px">
+      Try both: address a photograph, open it in the viewer, export. Then press
+      <code>random</code> in the viewer and export again — compare the two coordinate sizes.
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FINISHABLE UNIVERSE ============================ -->
+<section id="universe">
+  <div class="kicker">08 · A Finishable Universe</div>
+  <h2>The only resolution you will ever complete</h2>
+  <p class="lede">
+    At 1×1 the space holds exactly <em>16,777,216</em> frames — the only square RGB universe a
+    human can witness in full. Run the enumeration. The progress bar below is the only one on
+    this entire page that moves.
+  </p>
+
+  <div class="viewer">
+    <div class="canvas-frame"><div class="swatch" id="u1Swatch"></div></div>
+    <div class="controls">
+      <div class="btn-row" style="align-items:center">
+        <button class="primary" id="u1Play">▶ begin the sweep</button>
+        <button id="u1Reset">reset</button>
+        <label class="hint" for="u1Speed">speed:</label>
+        <select id="u1Speed">
+          <option value="60">60 frames/s (honest)</option>
+          <option value="6000">6,000 frames/s</option>
+          <option value="100000" selected>100,000 frames/s</option>
+          <option value="1000000">1,000,000 frames/s</option>
+        </select>
+      </div>
+      <div class="meter-track"><div class="meter-fill" id="u1Fill" style="width:0%"></div></div>
+      <div class="info-list" id="u1Info"></div>
+      <div class="hint" id="u1Note"></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px">
+    <h3>The complete atlas</h3>
+    <div class="note">
+      All 16,777,216 possible 1×1 images, rendered once each, as a single 4096×4096 sheet —
+      an entire universe on one page. Click anywhere on it to jump the sweep to that frame.
+    </div>
+    <button id="atlasBtn">render the complete atlas</button>
+    <div class="atlas-wrap" id="atlasWrap" style="display:none">
+      <canvas id="atlasCanvas"></canvas>
+      <div class="atlas-cursor" id="atlasCursor"></div>
+    </div>
+    <div class="hint" id="atlasNote" style="margin-top:10px"></div>
+  </div>
+</section>
+
+<!-- ============================ GENERATORS ============================ -->
+<section id="navigator">
+  <div class="kicker">09 · Generators Are Navigators</div>
+  <h2>AI doesn't create images. Nothing does.</h2>
+  <p class="lede">
+    Every image a diffusion model will ever output already had an address in this set before
+    the model existed — before computers existed. A generative model is not an artist; it is a
+    <em>navigator</em>: training surveys the islands of meaning, generating is sailing to one.
+    The proof is below. Destroying an image is easy. Coming back requires a map — and the map
+    can be astonishingly small, because meaning is compressible. That is what model weights
+    are: a compressed atlas of the islands.
+  </p>
+
+  <div class="viewer">
+    <div class="canvas-frame"><canvas id="navCanvas"></canvas></div>
+    <div class="controls">
+      <div class="btn-row">
+        <button id="navDemo">demo photograph</button>
+        <button id="navViewer">use viewer frame</button>
+      </div>
+      <div class="btn-row">
+        <button class="primary" id="navDissolve">→ dissolve into noise</button>
+      </div>
+      <div class="hint">then attempt the return, three ways:</div>
+      <div class="btn-row">
+        <button id="navAverage">average the possibilities</button>
+        <button id="navSearch">search at random</button>
+        <button id="navMap">consult the map</button>
+      </div>
+      <div class="info-list" id="navInfo"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ FILM PATH ============================ -->
+<section id="film">
+  <div class="kicker">10 · A Film's Path</div>
+  <h2>Every movie ever made is a scribble across this space</h2>
+  <p class="lede">
+    A video is a sequence of frames — a <em>polyline through the set</em>, one vertex per
+    frame. Drop in a video and see its trajectory: consecutive frames are visual neighbors
+    (tiny pixel changes), but the enumeration doesn't care. All of cinema, every film ever
+    shot, is a sparse scribble that touches a vanishing fraction of the space.
+  </p>
+
+  <div class="dropzone" id="filmDrop">
+    <input type="file" id="filmInput" accept="video/*">
+    drop a video here, or click to choose · sampled locally, never uploaded
+  </div>
+  <div class="hint" id="filmStatus"></div>
+
+  <div id="filmResult" style="display:none">
+    <div class="card">
+      <h3>Sampled trajectory</h3>
+      <div class="filmstrip" id="filmStrip"></div>
+      <div class="mini-chart-label">Motion — mean per-channel change between consecutive samples (0–255)</div>
+      <canvas class="mini-chart" id="filmMotion" width="900" height="90"></canvas>
+      <div class="mini-chart-label">Position in the enumerated space (%) — where each frame's address falls</div>
+      <canvas class="mini-chart" id="filmPosition" width="900" height="90"></canvas>
+      <div class="info-list" id="filmInfo" style="margin-top:12px"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ WITNESS REGISTRY ============================ -->
+<section id="registry">
+  <div class="kicker">11 · The Witness Registry</div>
+  <h2>First witnesses</h2>
+  <p class="lede">
+    Almost every frame this page shows you has never been seen before — which makes you its
+    first witness. Claim what you discover: each claim is <em>cryptographically signed</em>
+    with a key generated in this browser that never leaves your machine. This matters beyond
+    play: since every possible fake already exists in the set, no frame can prove anything
+    about itself — detection is mathematically doomed. What a frame cannot fake is a
+    <em>signature on a witnessing</em>: proof that someone vouched for this frame at this
+    moment. Provenance, not detection. <em>Local for now; a public ledger when published.</em>
+  </p>
+
+  <div class="card">
+    <div class="btn-row" style="align-items:center">
+      <input type="text" id="claimName" placeholder="witness name (optional)" style="width:200px">
+      <button class="primary" id="claimBtn">✍ claim the current viewer frame</button>
+      <button id="registryExport">↓ export registry</button>
+    </div>
+    <div class="btn-row" style="margin-top:12px;align-items:center">
+      <input type="text" id="recallSha" placeholder="recall by sha-256 fingerprint…" style="flex:1;min-width:220px">
+      <button id="recallBtn">recall</button>
+    </div>
+    <div class="hint" id="recallMsg" style="margin-top:6px"></div>
+    <div class="hint" style="margin-top:10px">your witness key: <span class="mono" id="witnessKey">generating…</span> · created locally, never transmitted</div>
+    <div id="claimList" style="margin-top:12px"></div>
+  </div>
+</section>
+
+<!-- ============================ WORDS ============================ -->
+<section id="words">
+  <div class="kicker">12 · Your Words Already Had a Number</div>
+  <h2>Every sentence is a frame; every frame is a number</h2>
+  <p class="lede">
+    Type anything. Rendered as pixels, it becomes a frame of the current space — a frame with
+    an address it has held since before language existed. Writing, like photography, is a way
+    of pointing at coordinates that were always there.
+  </p>
+
+  <div class="viewer">
+    <div class="canvas-frame"><canvas id="wordsCanvas"></canvas></div>
+    <div class="controls">
+      <input type="text" id="wordsInput" placeholder="type something…" maxlength="300">
+      <div class="btn-row">
+        <button class="primary" id="wordsViewer">open in viewer</button>
+        <button id="wordsLink">⧉ copy its address as a link</button>
+      </div>
+      <div class="info-list" id="wordsInfo"></div>
+      <div class="hint" id="wordsHint"></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <p><b style="color:var(--ink)">What this is.</b> The image-space form of Borges' <i>Library of
+  Babel</i>: a finite, complete, enumerable set that contains every possible picture — and
+  therefore proves that containing everything and knowing anything are different things.</p>
+  <p><b style="color:var(--ink)">Why no shortcut exists.</b> The address of an arbitrary frame
+  carries exactly as much information as the frame itself (the pigeonhole principle). To find a
+  specific photograph in the set, you must already possess it. The map is the territory.</p>
+  <p class="mono">pixeltheory · companion CLI: pixeltheory.py · everything runs locally in your browser</p>
+</footer>
+
+<div class="tour-card" id="tourCard" style="display:none">
+  <div class="tour-step" id="tourStep"></div>
+  <h4 id="tourTitle"></h4>
+  <p id="tourText"></p>
+  <div class="tour-nav">
+    <button id="tourBack">← back</button>
+    <span class="spacer"></span>
+    <button id="tourEnd">end tour</button>
+    <button class="primary" id="tourNext">next →</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ================= big-number helpers ================= */
+// log10(2) to 50 decimal places, as a scaled BigInt (floor(log10(2)·10^50))
+const L10_2 = 30102999566398119521373889472449302676818988146210n;
+const L10_SCALE = 10n ** 50n;
+
+// exact-ish stats of 2^k : { digits, mantissa, exp10 }
+function pow2Stats(k) {
+  const t = BigInt(k) * L10_2;              // = k·log10(2)·10^50
+  const exp10 = t / L10_SCALE;
+  const frac = Number(t % L10_SCALE) / 1e50; // ~15 accurate digits
+  return { digits: exp10 + 1n, exp10, mantissa: Math.pow(10, frac) };
+}
+
+function fmtBig(n) { return n.toLocaleString("en-US"); }
+function fmtBigInt(n) {
+  return n.toLocaleString ? n.toLocaleString("en-US") : String(n);
+}
+function sci(mantissa, exp10, sig = 4) {
+  return `${mantissa.toPrecision(sig)} × 10^${fmtBigInt(exp10)}`;
+}
+
+/* ================= the space ================= */
+const state = {
+  w: 256, h: 256,
+  frame: null,          // Uint8Array, length 3wh — THE canonical representation
+  walking: false,
+  staticPlaying: false,
+  staticCount: 0,
+  islandSource: null,
+};
+
+function bytesPerFrame() { return state.w * state.h * 3; }
+function bitsPerFrame() { return bytesPerFrame() * 8; }
+
+function setSpace(w, h) {
+  stopWalk(); stopStatic();
+  state.w = w; state.h = h;
+  state.frame = new Uint8Array(bytesPerFrame());
+  state.islandSource = null;
+  state.staticCount = 0;
+  for (const id of ["viewCanvas", "staticCanvas", "addressCanvas", "islandCanvas",
+                    "dissolveCanvas", "slotACanvas", "slotBCanvas", "navCanvas", "wordsCanvas"]) {
+    const c = document.getElementById(id);
+    c.width = w; c.height = h;
+  }
+  renderWords();
+  navStop();
+  NAV.orig = NAV.noise = NAV.thresh = null;
+  document.getElementById("navInfo").innerHTML = "";
+  document.getElementById("filmResult").style.display = "none";
+  document.getElementById("filmStatus").textContent = "";
+  document.getElementById("addressResult").style.display = "none";
+  document.getElementById("corruptSlider").value = 0;
+  document.getElementById("corruptPct").textContent = "0%";
+  document.getElementById("islandInfo").innerHTML = "";
+  document.getElementById("stCount").textContent = "0";
+  document.getElementById("stFraction").textContent = "0%";
+  document.getElementById("coordInfo").innerHTML = "";
+  renderSpaceStats();
+  paintFrame();
+  updateFrameInfo();
+  paintCanvas(document.getElementById("islandCanvas"), state.frame);
+  resetDissolve();
+}
+
+/* ================= painting ================= */
+function paintCanvas(canvas, rgb) {
+  const ctx = canvas.getContext("2d");
+  const img = ctx.createImageData(state.w, state.h);
+  const d = img.data;
+  for (let i = 0, j = 0; i < rgb.length; i += 3, j += 4) {
+    d[j] = rgb[i]; d[j + 1] = rgb[i + 1]; d[j + 2] = rgb[i + 2]; d[j + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+function paintFrame() { paintCanvas(document.getElementById("viewCanvas"), state.frame); }
+
+/* ================= frame arithmetic (bytes ARE the index) ================= */
+function frameFill(v) { state.frame.fill(v); }
+function frameRandom(buf) {
+  for (let i = 0; i < buf.length; i += 65536) {
+    crypto.getRandomValues(buf.subarray(i, Math.min(i + 65536, buf.length)));
+  }
+}
+// add 1 at byte position (len-1-offsetFromEnd), with carry. returns true if wrapped.
+function frameAdd(offsetFromEnd) {
+  const f = state.frame;
+  let i = f.length - 1 - offsetFromEnd;
+  while (i >= 0) {
+    if (f[i] === 255) { f[i] = 0; i--; } else { f[i]++; return false; }
+  }
+  return true; // wrapped past the last frame back to 0
+}
+function frameSub(offsetFromEnd) {
+  const f = state.frame;
+  let i = f.length - 1 - offsetFromEnd;
+  while (i >= 0) {
+    if (f[i] === 0) { f[i] = 255; i--; } else { f[i]--; return false; }
+  }
+  f.fill(255); return true; // wrapped below 0 to the last frame
+}
+
+function frameFromHex(hex) {
+  const len = bytesPerFrame();
+  if (hex.length > len * 2) throw new Error("that hex address is longer than this space's frames — switch to the matching resolution");
+  hex = hex.padStart(len * 2, "0");
+  const f = state.frame;
+  for (let i = 0; i < len; i++) f[i] = parseInt(hex.substr(i * 2, 2), 16);
+}
+function frameFromBigInt(v) {
+  const hex = v.toString(16);
+  if (hex.length > bytesPerFrame() * 2) throw new Error("index is beyond the last frame of this space");
+  frameFromHex(hex);
+}
+function frameFullHex() {
+  const f = state.frame, parts = [];
+  for (let i = 0; i < f.length; i += 65536) {
+    parts.push(Array.from(f.subarray(i, Math.min(i + 65536, f.length)),
+      b => b.toString(16).padStart(2, "0")).join(""));
+  }
+  return "0x" + parts.join("");
+}
+async function copyFullHex() {
+  const btn = document.getElementById("btnHex");
+  const hex = frameFullHex();
+  const size = hex.length > 1048576
+    ? (hex.length / 1048576).toFixed(1) + " MB"
+    : Math.round(hex.length / 1024) + " KB";
+  try {
+    await navigator.clipboard.writeText(hex);
+    btn.textContent = `copied ${size} ✓ — paste into any index field`;
+  } catch (e) { btn.textContent = "clipboard blocked — use ⧉ link or .javen instead"; }
+  setTimeout(() => { btn.textContent = "⧉ hex"; }, 3500);
+}
+
+/* index descriptors, computed from bytes without giant conversions */
+function frameLeadingFraction() {  // position in [0,1)
+  const f = state.frame;
+  let v = 0;
+  for (let i = 0; i < Math.min(7, f.length); i++) v = v * 256 + f[i];
+  return v / Math.pow(256, Math.min(7, f.length));
+}
+function sciOfBytes(f) {  // approx scientific notation of a byte-string's value
+  let i = 0;
+  while (i < f.length && f[i] === 0) i++;
+  if (i === f.length) return { zero: true };
+  let m = 0; const take = Math.min(7, f.length - i);
+  for (let k = 0; k < take; k++) m = m * 256 + f[i + k];
+  const log10 = Math.log10(m) + (f.length - i - take) * Math.log10(256);
+  const e = Math.floor(log10);
+  return { zero: false, mantissa: Math.pow(10, log10 - e), exp10: e, digits: e + 1 };
+}
+function frameSci() { return sciOfBytes(state.frame); }
+function frameHex(headBytes = 8) {
+  const f = state.frame;
+  const hex = b => Array.from(b, x => x.toString(16).padStart(2, "0")).join("");
+  if (f.length <= headBytes * 2) return "0x" + hex(f);
+  return "0x" + hex(f.subarray(0, headBytes)) + "…" + hex(f.subarray(f.length - headBytes));
+}
+async function frameSha() {
+  const d = await crypto.subtle.digest("SHA-256", state.frame);
+  return Array.from(new Uint8Array(d), x => x.toString(16).padStart(2, "0")).join("");
+}
+
+/* ================= section 1: space stats ================= */
+function renderSpaceStats() {
+  const k = bitsPerFrame();
+  const s = pow2Stats(k);
+  const isJaven = state.w === 1080 && state.h === 1080;
+
+  document.getElementById("headerTotal").innerHTML =
+    `${state.w}×${state.h} → <b>${sci(s.mantissa, s.exp10)}</b> frames`;
+
+  document.getElementById("heroLabel").textContent =
+    isJaven ? "Total distinct frames — the Javen Number" : "Total distinct frames";
+  document.getElementById("heroValue").innerHTML =
+    `${s.mantissa.toPrecision(6)} <span class="nb">× 10<sup>${fmtBigInt(s.exp10)}</sup></span>`;
+  document.getElementById("heroSub").textContent =
+    `= 16,777,216 ^ ${fmtBig(state.w * state.h)}  =  2 ^ ${fmtBig(k)}`;
+
+  document.getElementById("tDigits").textContent = fmtBigInt(s.digits);
+  document.getElementById("tPixels").textContent = fmtBig(state.w * state.h);
+  document.getElementById("tBits").textContent = fmtBig(k);
+  const by = bytesPerFrame();
+  document.getElementById("tBytes").innerHTML =
+    `${fmtBig(by)} <small>(${by >= 1048576 ? (by / 1048576).toFixed(2) + " MB" : (by / 1024).toFixed(1) + " KB"})</small>`;
+
+  // growth from adding one row and one column
+  const newPixels = (state.w + 1) * (state.h + 1) - state.w * state.h;
+  const g = pow2Stats(newPixels * 24);
+  document.getElementById("tGrow").innerHTML =
+    `<span class="nb">× 10<sup>${fmtBigInt(g.exp10)}</sup></span> <small>more frames</small>`;
+
+  renderLadder(s);
+  renderFutility(s);
+}
+
+function renderLadder(s) {
+  const rows = [
+    { name: "Seconds since the Big Bang", digits: 18 },
+    { name: "Atoms in the observable universe", digits: 81 },
+    { name: "A googol", digits: 101 },
+    { name: "Possible chess games (Shannon)", digits: 121 },
+    { name: "Planck volumes in the universe", digits: 186 },
+    { name: `Frames in this ${state.w}×${state.h} space`, digits: Number(s.digits), javen: true },
+  ];
+  const max = Math.max(...rows.map(r => r.digits));
+  document.getElementById("ladder").innerHTML = rows.map(r => `
+    <div class="ladder-row ${r.javen ? "javen" : ""}">
+      <div class="name">${r.name}</div>
+      <div class="bar-track"><div class="bar" style="width:${Math.max(0.15, r.digits / max * 100)}%"></div></div>
+      <div class="val">10^${fmtBig(r.digits - 1)}</div>
+    </div>`).join("");
+}
+
+function renderFutility(s) {
+  // every atom in the universe (1e80) rendering 1e12 frames/s since the Big Bang (~4.35e17 s)
+  const renderedExp = 80 + 12 + 17.64; // log10 of total frames rendered ≈ 10^109.6
+  const coverageExp = renderedExp - (Number(s.exp10) + Math.log10(s.mantissa));
+  document.getElementById("futilityNote").textContent =
+    "Suppose every atom in the observable universe (10^80) were a computer rendering one " +
+    "trillion frames per second (10^12), running since the Big Bang (13.8 billion years).";
+  document.getElementById("futilityFill").style.width = "0%";
+  if (coverageExp >= 0) {
+    document.getElementById("futilityCaption").textContent =
+      "This space is small enough that the cosmic computer would have finished it. Add pixels.";
+    document.getElementById("futilityFill").style.width = "100%";
+  } else {
+    document.getElementById("futilityCaption").textContent =
+      `Progress: ~10^${Math.round(coverageExp).toLocaleString()} of the space — a decimal point, ` +
+      `${Math.abs(Math.round(coverageExp)).toLocaleString()} zeros, then a 1. The bar above is not broken.`;
+  }
+}
+
+/* ================= section 2: viewer ================= */
+let shaTimer = null;
+function updateFrameInfo(wrapped) {
+  const info = document.getElementById("frameInfo");
+  const s = frameSci();
+  const len = bytesPerFrame();
+  let indexLine;
+  if (s.zero) {
+    indexLine = "0 — the first frame (pure black)";
+  } else if (len <= 48) {
+    let v = 0n;
+    for (const b of state.frame) v = (v << 8n) | BigInt(b);
+    indexLine = v.toLocaleString("en-US");
+  } else {
+    indexLine = `≈ ${s.mantissa.toPrecision(6)} × 10^${fmtBig(s.exp10)} (${fmtBig(s.digits)} digits)`;
+  }
+  const pos = frameLeadingFraction();
+  info.innerHTML = `
+    <div><span class="k">index</span><span class="v"><b>${indexLine}</b></span></div>
+    <div><span class="k">hex</span><span class="v">${frameHex()}</span></div>
+    <div><span class="k">position</span><span class="v">${(pos * 100).toFixed(10)}% of the way to the last frame</span></div>
+    <div><span class="k">sha-256</span><span class="v" id="shaLine">computing…</span></div>
+    ${wrapped ? '<div><span class="k">note</span><span class="v">wrapped around the end of the universe of frames</span></div>' : ""}
+  `;
+  clearTimeout(shaTimer);
+  shaTimer = setTimeout(async () => {
+    const sha = await frameSha();
+    const el = document.getElementById("shaLine");
+    if (el) el.textContent = sha;
+  }, 150);
+
+  // walk hint: steps until the top-left pixel changes
+  const stepsExp = pow2Stats(bitsPerFrame() - 8);
+  const yearsExp = Number(stepsExp.exp10) + Math.log10(stepsExp.mantissa) - Math.log10(60 * 31557600);
+  document.getElementById("walkHint").textContent =
+    `Walking at 60 steps/second from frame 0, the top-left pixel first changes after ` +
+    `~10^${Math.round(yearsExp).toLocaleString()} years. The universe is 10^10 years old.`;
+}
+
+function renderIndexInput() {
+  const raw = document.getElementById("indexInput").value.trim().replace(/\s+/g, "");
+  if (!raw) return;
+  try {
+    if (raw === "random") { frameRandom(state.frame); }
+    else if (raw === "max" || raw === "last") { frameFill(255); }
+    else if (/^0x[0-9a-fA-F]+$/.test(raw)) { frameFromHex(raw.slice(2).toLowerCase()); }
+    else { frameFromBigInt(BigInt(raw.replace(/[,_]/g, ""))); }
+    paintFrame(); updateFrameInfo();
+  } catch (e) {
+    document.getElementById("frameInfo").innerHTML =
+      `<div><span class="k">error</span><span class="v">${e.message}</span></div>`;
+  }
+}
+
+function walkOffset() {
+  const v = document.getElementById("walkStep").value;
+  if (v === "row") return state.w * 3;
+  return parseInt(v, 10);
+}
+let walkRaf = null;
+function stepWalk() {
+  if (!state.walking) return;
+  const wrapped = frameAdd(walkOffset());
+  paintFrame();
+  updateFrameInfo(wrapped);
+  walkRaf = requestAnimationFrame(stepWalk);
+}
+function startWalk() {
+  state.walking = true;
+  const b = document.getElementById("btnWalk");
+  b.textContent = "⏸ walking"; b.classList.add("active");
+  stepWalk();
+}
+function stopWalk() {
+  state.walking = false;
+  cancelAnimationFrame(walkRaf);
+  const b = document.getElementById("btnWalk");
+  if (b) { b.textContent = "▶ walk"; b.classList.remove("active"); }
+}
+
+/* ================= section 3: static channel ================= */
+// fast PRNG for the display loop (crypto for "official" single samples)
+let xs = (Math.random() * 0xffffffff) >>> 0;
+function xorshift() {
+  xs ^= xs << 13; xs >>>= 0; xs ^= xs >> 17; xs ^= xs << 5; xs >>>= 0; return xs;
+}
+let staticRaf = null, lastFpsT = 0, fpsFrames = 0;
+function staticTick(t) {
+  if (!state.staticPlaying) return;
+  const canvas = document.getElementById("staticCanvas");
+  const ctx = canvas.getContext("2d");
+  const img = ctx.createImageData(state.w, state.h);
+  const u32 = new Uint32Array(img.data.buffer);
+  for (let i = 0; i < u32.length; i++) u32[i] = xorshift() | 0xFF000000;
+  ctx.putImageData(img, 0, 0);
+  state.staticCount++;
+  fpsFrames++;
+  if (t - lastFpsT > 500) {
+    document.getElementById("stFps").textContent =
+      Math.round(fpsFrames / ((t - lastFpsT) / 1000)) + " fps";
+    lastFpsT = t; fpsFrames = 0;
+  }
+  document.getElementById("stCount").textContent = fmtBig(state.staticCount);
+  const s = pow2Stats(bitsPerFrame());
+  const fracExp = Math.log10(state.staticCount) - (Number(s.exp10) + Math.log10(s.mantissa));
+  document.getElementById("stFraction").textContent = `~10^${Math.round(fracExp).toLocaleString()}%`;
+  staticRaf = requestAnimationFrame(staticTick);
+}
+function startStatic() {
+  state.staticPlaying = true;
+  const b = document.getElementById("staticBtn");
+  b.textContent = "⏸ tuned in"; b.classList.add("active");
+  lastFpsT = performance.now(); fpsFrames = 0;
+  staticRaf = requestAnimationFrame(staticTick);
+}
+function stopStatic() {
+  state.staticPlaying = false;
+  cancelAnimationFrame(staticRaf);
+  const b = document.getElementById("staticBtn");
+  if (b) { b.textContent = "▶ tune in"; b.classList.remove("active"); }
+}
+
+/* ================= section 4: address ================= */
+// decode an image File to something drawImage accepts; throws a friendly error if impossible
+async function decodeImageFile(file) {
+  try { return await createImageBitmap(file); } catch (e) { /* fall through to <img> */ }
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image();
+    await new Promise((res, rej) => {
+      img.onload = res;
+      img.onerror = () => rej(new Error(
+        `couldn't decode "${file.name}" — this browser can't read that format. ` +
+        `iPhone / Apple Photos HEIC: export as JPEG or PNG first (or use Safari, which reads HEIC natively).`));
+      img.src = url;
+    });
+    return img;
+  } finally { URL.revokeObjectURL(url); }
+}
+
+async function addressImage(file) {
+  const status = document.getElementById("addressStatus");
+  if (/\.javen$/i.test(file.name) || file.type === "application/json") {
+    status.textContent = "coordinate card detected — re-rendering in the frame viewer";
+    importCoordinate(file);
+    return;
+  }
+  status.textContent = `reading ${file.name}…`;
+  let img;
+  try {
+    img = await decodeImageFile(file);
+  } catch (e) {
+    status.textContent = "✕ " + e.message;
+    return;
+  }
+  status.textContent = "";
+
+  // cover-crop into the current space
+  const c = document.getElementById("addressCanvas");
+  const ctx = c.getContext("2d");
+  const scale = Math.max(state.w / img.width, state.h / img.height);
+  const dw = img.width * scale, dh = img.height * scale;
+  ctx.fillStyle = "#000"; ctx.fillRect(0, 0, state.w, state.h);
+  ctx.drawImage(img, (state.w - dw) / 2, (state.h - dh) / 2, dw, dh);
+
+  const data = ctx.getImageData(0, 0, state.w, state.h).data;
+  const rgb = new Uint8Array(bytesPerFrame());
+  for (let i = 0, j = 0; j < data.length; i += 3, j += 4) {
+    rgb[i] = data[j]; rgb[i + 1] = data[j + 1]; rgb[i + 2] = data[j + 2];
+  }
+  state.addressed = rgb;
+
+  // describe its index
+  let iNz = 0; while (iNz < rgb.length && rgb[iNz] === 0) iNz++;
+  let m = 0; const take = Math.min(7, rgb.length - iNz);
+  for (let k = 0; k < take; k++) m = m * 256 + rgb[iNz + k];
+  const log10 = iNz === rgb.length ? 0 : Math.log10(m) + (rgb.length - iNz - take) * Math.log10(256);
+  const e = Math.floor(log10);
+  const hex = b => Array.from(b, x => x.toString(16).padStart(2, "0")).join("");
+  const head = hex(rgb.subarray(0, 8)), tail = hex(rgb.subarray(rgb.length - 8));
+  const dig = await crypto.subtle.digest("SHA-256", rgb);
+  const sha = Array.from(new Uint8Array(dig), x => x.toString(16).padStart(2, "0")).join("");
+
+  document.getElementById("addressResult").style.display = "";
+  document.getElementById("addressInfo").innerHTML = `
+    <div><span class="k">fitted to</span><span class="v">${state.w} × ${state.h} (cover-crop)</span></div>
+    <div><span class="k">index</span><span class="v"><b>≈ ${Math.pow(10, log10 - e).toPrecision(6)} × 10^${fmtBig(e)}</b> — a ${fmtBig(e + 1)}-digit integer</span></div>
+    <div><span class="k">hex</span><span class="v">0x${head}…${tail}</span></div>
+    <div><span class="k">sha-256</span><span class="v">${sha}</span></div>
+    <div><span class="k">neighbors</span><span class="v">frames #±1 differ by one blue value in the bottom-right pixel</span></div>
+  `;
+}
+
+/* ================= section 5: islands ================= */
+function pullIsland(source) {
+  state.islandSource = new Uint8Array(source);
+  document.getElementById("corruptSlider").value = 0;
+  document.getElementById("corruptPct").textContent = "0%";
+  paintCanvas(document.getElementById("islandCanvas"), state.islandSource);
+  updateIslandInfo(0);
+}
+function corrupt(fraction) {
+  if (!state.islandSource) return;
+  const src = state.islandSource;
+  const out = new Uint8Array(src);
+  const nPix = state.w * state.h;
+  const n = Math.round(fraction * nPix);
+  for (let k = 0; k < n; k++) {
+    const p = (xorshift() % nPix) * 3;
+    out[p] = xorshift() & 255; out[p + 1] = xorshift() & 255; out[p + 2] = xorshift() & 255;
+  }
+  paintCanvas(document.getElementById("islandCanvas"), out);
+  updateIslandInfo(fraction);
+}
+function updateIslandInfo(fraction) {
+  const nPix = state.w * state.h;
+  const changed = Math.round(fraction * nPix);
+  // number of frames within this corruption distance ~ C(nPix, changed) * (2^24)^changed — show the exponent of the ball size vs space
+  const ballExp = changed * Math.log10(16777216); // ignores the (huge) binomial factor; still makes the point
+  const s = pow2Stats(bitsPerFrame());
+  document.getElementById("islandInfo").innerHTML = `
+    <div><span class="k">pixels replaced</span><span class="v">${fmtBig(changed)} of ${fmtBig(nPix)}</span></div>
+    <div><span class="k">neighborhood</span><span class="v">≥ 10^${fmtBig(Math.round(ballExp))} frames sit within this distance of the original</span></div>
+    <div><span class="k">space</span><span class="v">…out of ~10^${fmtBigInt(s.exp10)} — the island is invisible at any scale</span></div>
+  `;
+}
+
+/* ================= section 6: the dissolve ================= */
+const DIS = { A: null, B: null, thresh: null, mode: "blend", playing: false, raf: null };
+
+function synthFrame(kind) {
+  const w = state.w, h = state.h;
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  const x = c.getContext("2d");
+  if (kind === 0) { // day: sky, sun, ground
+    const g = x.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, "#2b6cb0"); g.addColorStop(0.65, "#ed8936"); g.addColorStop(1, "#f6e05e");
+    x.fillStyle = g; x.fillRect(0, 0, w, h);
+    x.fillStyle = "#fffbe8"; x.beginPath(); x.arc(w * 0.7, h * 0.35, Math.max(1, w * 0.11), 0, 7); x.fill();
+    x.fillStyle = "#1a2f23"; x.fillRect(0, h * 0.78, w, h * 0.22);
+  } else { // night: crescent moon, stars
+    const g = x.createLinearGradient(0, 0, 0, h);
+    g.addColorStop(0, "#050b18"); g.addColorStop(1, "#14243d");
+    x.fillStyle = g; x.fillRect(0, 0, w, h);
+    x.fillStyle = "#e8e6d8"; x.beginPath(); x.arc(w * 0.3, h * 0.3, Math.max(1, w * 0.09), 0, 7); x.fill();
+    x.fillStyle = "#0a1626"; x.beginPath(); x.arc(w * 0.33, h * 0.275, Math.max(1, w * 0.075), 0, 7); x.fill();
+    x.fillStyle = "#ffffff";
+    for (let i = 0; i < Math.max(20, (w * h) / 400); i++) {
+      x.globalAlpha = 0.3 + (xorshift() % 70) / 100;
+      x.fillRect(xorshift() % w, (xorshift() % h) * 0.72, 1, 1);
+    }
+    x.globalAlpha = 1;
+    x.fillStyle = "#0d1520"; x.fillRect(0, h * 0.85, w, h * 0.15);
+  }
+  const d = x.getImageData(0, 0, w, h).data;
+  const out = new Uint8Array(w * h * 3);
+  for (let i = 0, j = 0; j < d.length; i += 3, j += 4) {
+    out[i] = d[j]; out[i + 1] = d[j + 1]; out[i + 2] = d[j + 2];
+  }
+  return out;
+}
+
+// exact big-integer lerp on raw byte strings: result = A + floor((B-A)·k/N)
+function numericLerp(A, B, k, N) {
+  const L = A.length;
+  let cmp = 0;
+  for (let i = 0; i < L; i++) { if (A[i] !== B[i]) { cmp = A[i] < B[i] ? -1 : 1; break; } }
+  if (cmp === 0) return new Uint8Array(A);
+  const lo = cmp < 0 ? A : B, hi = cmp < 0 ? B : A;
+  const kk = cmp < 0 ? k : N - k;
+  const D = new Uint8Array(L);                      // D = hi - lo
+  let borrow = 0;
+  for (let i = L - 1; i >= 0; i--) {
+    let v = hi[i] - lo[i] - borrow;
+    if (v < 0) { v += 256; borrow = 1; } else borrow = 0;
+    D[i] = v;
+  }
+  const S = new Uint32Array(L);                     // S = floor(D·kk/N), long division
+  let rem = 0;
+  for (let i = 0; i < L; i++) {
+    const acc = rem * 256 + D[i] * kk;
+    S[i] = (acc / N) | 0; rem = acc % N;
+  }
+  const out = new Uint8Array(L);                    // out = lo + S
+  let carry = 0;
+  for (let i = L - 1; i >= 0; i--) {
+    const v = lo[i] + S[i] + carry;
+    out[i] = v & 255; carry = v >> 8;
+  }
+  return out;
+}
+
+const DISSOLVE_NOTES = {
+  blend: "The familiar dissolve — pixel values fade in place. One of infinitely many roads.",
+  numeric: "The true straight line in index space — the integers between A and B, sampled in order. It spends almost the whole journey inside noise: carrying digits scrambles every pixel below the first. The shortest numerical path between two photographs is static nearly all the way, which is why enumeration order can never be steered toward meaning.",
+  scatter: "Pixels defect from A to B one at a time, in a fixed random order.",
+};
+
+function dissolveFrame() {
+  if (!DIS.A || !DIS.B) return;
+  const k = +document.getElementById("dissolveT").value, N = 1000, t = k / N;
+  document.getElementById("dissolvePct").textContent = (t * 100).toFixed(1) + "%";
+  let out;
+  if (DIS.mode === "blend") {
+    out = new Uint8Array(DIS.A.length);
+    for (let i = 0; i < out.length; i++) out[i] = (DIS.A[i] + (DIS.B[i] - DIS.A[i]) * t + 0.5) | 0;
+  } else if (DIS.mode === "numeric") {
+    out = numericLerp(DIS.A, DIS.B, k, N);
+  } else {
+    out = new Uint8Array(DIS.A.length);
+    const nP = state.w * state.h;
+    for (let p = 0; p < nP; p++) {
+      const s = DIS.thresh[p] < t ? DIS.B : DIS.A, q = p * 3;
+      out[q] = s[q]; out[q + 1] = s[q + 1]; out[q + 2] = s[q + 2];
+    }
+  }
+  paintCanvas(document.getElementById("dissolveCanvas"), out);
+  const s = sciOfBytes(out);
+  document.getElementById("dissolveInfo").innerHTML = `
+    <div><span class="k">this frame</span><span class="v">${s.zero ? "0" :
+      `≈ ${s.mantissa.toPrecision(4)} × 10^${fmtBig(s.exp10)}`} — a full member of the set</span></div>`;
+  document.getElementById("dissolveModeNote").textContent = DISSOLVE_NOTES[DIS.mode];
+}
+
+function setSlot(which, bytes) {
+  DIS[which] = bytes;
+  paintCanvas(document.getElementById(which === "A" ? "slotACanvas" : "slotBCanvas"), bytes);
+  dissolveFrame();
+}
+function resetDissolve() {
+  stopDissolvePlay();
+  const nP = state.w * state.h;
+  DIS.thresh = new Float32Array(nP);
+  for (let p = 0; p < nP; p++) DIS.thresh[p] = (xorshift() >>> 8) / 16777216;
+  setSlot("A", synthFrame(0));
+  setSlot("B", synthFrame(1));
+  document.getElementById("dissolveT").value = 0;
+  dissolveFrame();
+}
+async function fileToFrame(file) {
+  const img = await decodeImageFile(file);
+  const c = document.createElement("canvas"); c.width = state.w; c.height = state.h;
+  const x = c.getContext("2d");
+  const scale = Math.max(state.w / img.width, state.h / img.height);
+  x.fillStyle = "#000"; x.fillRect(0, 0, state.w, state.h);
+  x.drawImage(img, (state.w - img.width * scale) / 2, (state.h - img.height * scale) / 2,
+    img.width * scale, img.height * scale);
+  const d = x.getImageData(0, 0, state.w, state.h).data;
+  const out = new Uint8Array(bytesPerFrame());
+  for (let i = 0, j = 0; j < d.length; i += 3, j += 4) {
+    out[i] = d[j]; out[i + 1] = d[j + 1]; out[i + 2] = d[j + 2];
+  }
+  return out;
+}
+let dissolveLastT = 0;
+function dissolveTick(t) {
+  if (!DIS.playing) return;
+  const slider = document.getElementById("dissolveT");
+  const dt = dissolveLastT ? t - dissolveLastT : 16;
+  dissolveLastT = t;
+  const v = Math.min(1000, +slider.value + dt / 5); // ~5s per crossing
+  slider.value = v;
+  dissolveFrame();
+  if (v >= 1000) { stopDissolvePlay(); return; }
+  DIS.raf = requestAnimationFrame(dissolveTick);
+}
+function startDissolvePlay() {
+  const slider = document.getElementById("dissolveT");
+  if (+slider.value >= 1000) slider.value = 0;
+  DIS.playing = true; dissolveLastT = 0;
+  const b = document.getElementById("dissolvePlay");
+  b.textContent = "⏸ travelling"; b.classList.add("active");
+  DIS.raf = requestAnimationFrame(dissolveTick);
+}
+function stopDissolvePlay() {
+  DIS.playing = false;
+  cancelAnimationFrame(DIS.raf);
+  const b = document.getElementById("dissolvePlay");
+  if (b) { b.textContent = "▶ travel A → B"; b.classList.remove("active"); }
+}
+
+/* ================= section 7: coordinates ================= */
+function bytesToB64(u8) {
+  let s = "";
+  for (let i = 0; i < u8.length; i += 32768)
+    s += String.fromCharCode.apply(null, u8.subarray(i, Math.min(i + 32768, u8.length)));
+  return btoa(s);
+}
+function b64ToBytes(b64) {
+  const s = atob(b64);
+  const out = new Uint8Array(s.length);
+  for (let i = 0; i < s.length; i++) out[i] = s.charCodeAt(i);
+  return out;
+}
+async function tryDeflate(bytes) {
+  if (!("CompressionStream" in window)) return null;
+  const stream = new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+async function tryInflate(bytes) {
+  const stream = new Blob([bytes]).stream().pipeThrough(new DecompressionStream("deflate"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+async function buildCoordinate() {
+  const raw = state.frame;
+  const sha = await frameSha();
+  const comp = await tryDeflate(raw);
+  const useComp = comp && comp.length < raw.length;
+  return {
+    card: {
+      format: "javen-coordinate-v1",
+      space: `${state.w}x${state.h}`,
+      encoding: useComp ? "deflate+base64" : "base64",
+      rawBytes: raw.length,
+      sha256: sha,
+      index: bytesToB64(useComp ? comp : raw),
+    },
+    payloadBytes: useComp ? comp.length : raw.length,
+  };
+}
+async function exportCoordinate() {
+  const btn = document.getElementById("coordExport");
+  btn.disabled = true;
+  try {
+    const { card, payloadBytes } = await buildCoordinate();
+    const json = JSON.stringify(card);
+    const blob = new Blob([json], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `coordinate_${state.w}x${state.h}_${card.sha256.slice(0, 8)}.javen`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    const ratio = card.rawBytes / payloadBytes;
+    const verdict = ratio > 1.5
+      ? `this frame is ${(100 - 100 / ratio).toFixed(1)}% pattern — the signature of meaning`
+      : `barely compressible — pure information with no pattern: the signature of noise`;
+    document.getElementById("coordInfo").innerHTML = `
+      <div><span class="k">exported</span><span class="v"><b>${a.download}</b></span></div>
+      <div><span class="k">raw index</span><span class="v">${fmtBig(card.rawBytes)} bytes</span></div>
+      <div><span class="k">coordinate</span><span class="v">${fmtBig(payloadBytes)} bytes (${ratio.toFixed(2)}× smaller)</span></div>
+      <div><span class="k">reading</span><span class="v">${verdict}</span></div>`;
+  } finally { btn.disabled = false; }
+}
+async function importCoordinate(file) {
+  try {
+    const card = JSON.parse(await file.text());
+    if (card.format !== "javen-coordinate-v1") throw new Error("not a javen coordinate card");
+    const [w, h] = card.space.split("x").map(Number);
+    const switched = w !== state.w || h !== state.h;
+    if (switched) {
+      document.getElementById("preset").value = "custom";
+      setSpace(w, h);
+    }
+    let bytes = b64ToBytes(card.index);
+    if (card.encoding.startsWith("deflate")) bytes = await tryInflate(bytes);
+    if (bytes.length !== bytesPerFrame()) throw new Error("coordinate does not fit its declared space");
+    state.frame.set(bytes);
+    const sha = await frameSha();
+    const ok = sha === card.sha256;
+    paintFrame(); updateFrameInfo();
+    document.getElementById("coordInfo").innerHTML = `
+      <div><span class="k">imported</span><span class="v"><b>${file.name}</b>${switched ? ` — switched space to ${w}×${h}` : ""}</span></div>
+      <div><span class="k">integrity</span><span class="v">${ok ? "sha-256 verified — the exact frame, re-rendered from its address alone" : "⚠ sha-256 mismatch"}</span></div>`;
+    document.getElementById("viewer").scrollIntoView();
+  } catch (e) {
+    document.getElementById("coordInfo").innerHTML =
+      `<div><span class="k">error</span><span class="v">${e.message}</span></div>`;
+  }
+}
+
+/* ================= section 8: a finishable universe ================= */
+const U1 = { total: 16777216, index: 0, playing: false, raf: null, elapsed: 0, lastT: 0, done: false };
+
+function fmtDuration(sec) {
+  if (sec < 60) return sec.toFixed(1) + " s";
+  if (sec < 3600) return (sec / 60).toFixed(1) + " min";
+  if (sec < 86400) return (sec / 3600).toFixed(1) + " h";
+  return (sec / 86400).toFixed(1) + " days";
+}
+function u1Update() {
+  const i = U1.index;
+  const r = (i >> 16) & 255, g = (i >> 8) & 255, b = i & 255;
+  const hex = "#" + i.toString(16).padStart(6, "0");
+  document.getElementById("u1Swatch").style.background = hex;
+  document.getElementById("u1Fill").style.width = (i / (U1.total - 1) * 100) + "%";
+  const speed = +document.getElementById("u1Speed").value;
+  const eta = (U1.total - 1 - i) / speed;
+  document.getElementById("u1Info").innerHTML = `
+    <div><span class="k">frame</span><span class="v"><b>${fmtBig(i)}</b> of ${fmtBig(U1.total - 1)}</span></div>
+    <div><span class="k">color</span><span class="v">${hex} — rgb(${r}, ${g}, ${b})</span></div>
+    <div><span class="k">progress</span><span class="v">${(i / (U1.total - 1) * 100).toFixed(4)}%</span></div>
+    <div><span class="k">remaining</span><span class="v">${U1.done ? "—" : fmtDuration(eta) + " at this speed"}</span></div>
+    <div><span class="k">elapsed</span><span class="v">${fmtDuration(U1.elapsed / 1000)}</span></div>`;
+  const cur = document.getElementById("atlasCursor");
+  if (cur.style.display !== "none") {
+    const wrap = document.getElementById("atlasCanvas").getBoundingClientRect();
+    cur.style.left = ((i % 4096 + 0.5) / 4096 * wrap.width) + "px";
+    cur.style.top = ((Math.floor(i / 4096) + 0.5) / 4096 * wrap.height) + "px";
+  }
+}
+function u1Tick(t) {
+  if (!U1.playing) return;
+  const dt = U1.lastT ? t - U1.lastT : 16;
+  U1.lastT = t; U1.elapsed += dt;
+  const speed = +document.getElementById("u1Speed").value;
+  U1.index = Math.min(U1.total - 1, U1.index + Math.max(1, Math.round(speed * dt / 1000)));
+  u1Update();
+  if (U1.index >= U1.total - 1) { u1Finish(); return; }
+  U1.raf = requestAnimationFrame(u1Tick);
+}
+function u1Finish() {
+  U1.playing = false; U1.done = true;
+  const b = document.getElementById("u1Play");
+  b.textContent = "▶ begin the sweep"; b.classList.remove("active");
+  document.getElementById("u1Note").innerHTML =
+    `<span class="complete">UNIVERSE COMPLETE</span> — you have now witnessed every image that can
+     exist at 1×1, in ${fmtDuration(U1.elapsed / 1000)}. The same sweep at 2×2, at a million
+     frames per second, takes 2.5 × 10<sup>15</sup> years. This is the only universe you finish.`;
+  u1Update();
+}
+function u1Toggle() {
+  const b = document.getElementById("u1Play");
+  if (U1.playing) {
+    U1.playing = false; cancelAnimationFrame(U1.raf);
+    b.textContent = "▶ resume the sweep"; b.classList.remove("active");
+  } else {
+    if (U1.done || U1.index >= U1.total - 1) { U1.index = 0; U1.elapsed = 0; U1.done = false; document.getElementById("u1Note").innerHTML = ""; }
+    U1.playing = true; U1.lastT = 0;
+    b.textContent = "⏸ sweeping"; b.classList.add("active");
+    U1.raf = requestAnimationFrame(u1Tick);
+  }
+}
+function u1ResetAll() {
+  U1.playing = false; cancelAnimationFrame(U1.raf);
+  U1.index = 0; U1.elapsed = 0; U1.done = false;
+  const b = document.getElementById("u1Play");
+  b.textContent = "▶ begin the sweep"; b.classList.remove("active");
+  document.getElementById("u1Note").innerHTML = "";
+  u1Update();
+}
+function renderAtlas() {
+  const btn = document.getElementById("atlasBtn");
+  btn.disabled = true; btn.textContent = "rendering 16,777,216 frames…";
+  requestAnimationFrame(() => {
+    const c = document.getElementById("atlasCanvas");
+    c.width = 4096; c.height = 4096;
+    const ctx = c.getContext("2d");
+    const img = ctx.createImageData(4096, 4096);
+    const d = img.data;
+    for (let i = 0; i < 16777216; i++) {
+      const j = i * 4;
+      d[j] = (i >> 16) & 255; d[j + 1] = (i >> 8) & 255; d[j + 2] = i & 255; d[j + 3] = 255;
+    }
+    ctx.putImageData(img, 0, 0);
+    document.getElementById("atlasWrap").style.display = "";
+    document.getElementById("atlasCursor").style.display = "block";
+    btn.style.display = "none";
+    document.getElementById("atlasNote").innerHTML =
+      "Complete. And notice: this atlas is itself a <b>single frame</b> of the 4096×4096 space — " +
+      "one universe containing the entire map of another. The 1081×1081 space likewise contains, " +
+      "tiled inside its members, every frame of every smaller space.";
+    u1Update();
+  });
+}
+
+/* ================= section 9: generators are navigators ================= */
+const NAV = { orig: null, noise: null, thresh: null, t: 0, raf: null, busy: false, attempts: 0 };
+
+function navMix(t) {
+  const out = new Uint8Array(NAV.orig.length);
+  const nP = state.w * state.h;
+  for (let p = 0; p < nP; p++) {
+    const s = NAV.thresh[p] < t ? NAV.noise : NAV.orig, q = p * 3;
+    out[q] = s[q]; out[q + 1] = s[q + 1]; out[q + 2] = s[q + 2];
+  }
+  return out;
+}
+function navPaint(bytes) { paintCanvas(document.getElementById("navCanvas"), bytes); }
+function navSay(k, v) {
+  document.getElementById("navInfo").innerHTML =
+    `<div><span class="k">${k}</span><span class="v">${v}</span></div>`;
+}
+function navStop() { NAV.busy = false; cancelAnimationFrame(NAV.raf); }
+function navLoad(bytes) {
+  navStop();
+  NAV.orig = new Uint8Array(bytes);
+  NAV.noise = new Uint8Array(bytes.length);
+  frameRandom(NAV.noise);
+  const nP = state.w * state.h;
+  NAV.thresh = new Float32Array(nP);
+  for (let p = 0; p < nP; p++) NAV.thresh[p] = (xorshift() >>> 8) / 16777216;
+  NAV.t = 0;
+  navPaint(NAV.orig);
+  navSay("loaded", "a meaningful frame — an island in the noise ocean");
+}
+function navLoadDemo() { navLoad(synthFrame(0)); }
+function navAnimateT(target, ms, doneMsg) {
+  navStop(); NAV.busy = true;
+  const from = NAV.t, t0 = performance.now();
+  const step = now => {
+    if (!NAV.busy) return;
+    const u = Math.min(1, (now - t0) / ms);
+    NAV.t = from + (target - from) * u;
+    navPaint(navMix(NAV.t));
+    navSay("state", `${(NAV.t * 100).toFixed(0)}% noise`);
+    if (u < 1) { NAV.raf = requestAnimationFrame(step); }
+    else { NAV.busy = false; navSay("state", doneMsg); }
+  };
+  NAV.raf = requestAnimationFrame(step);
+}
+function navDissolve() {
+  if (!NAV.orig) navLoadDemo();
+  navAnimateT(1, 2200,
+    "fully dissolved — the forward direction is effortless. Now try to come back.");
+}
+function navAverage() {
+  if (!NAV.orig) { navSay("first", "load a frame and dissolve it"); return; }
+  navStop(); NAV.busy = true;
+  let cur = navMix(NAV.t), passes = 0;
+  const w = state.w, h = state.h;
+  const step = () => {
+    if (!NAV.busy) return;
+    const next = new Uint8Array(cur.length);   // box blur, one pass
+    for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+      for (let c = 0; c < 3; c++) {
+        let s = 0, n = 0;
+        for (let dy = -1; dy <= 1; dy++) for (let dx = -1; dx <= 1; dx++) {
+          const yy = y + dy, xx = x + dx;
+          if (yy >= 0 && yy < h && xx >= 0 && xx < w) { s += cur[(yy * w + xx) * 3 + c]; n++; }
+        }
+        next[(y * w + x) * 3 + c] = s / n;
+      }
+    }
+    cur = next; passes++;
+    navPaint(cur);
+    navSay("averaging", `pass ${passes} — dissolving toward the mean of everything plausible`);
+    if (passes < 24) { NAV.raf = requestAnimationFrame(step); }
+    else {
+      NAV.busy = false;
+      navSay("result", "mush. Without a map, the honest best guess is the average of every " +
+        "plausible image — and the average of everything is nothing. This is why an untrained " +
+        "model outputs gray.");
+    }
+  };
+  NAV.raf = requestAnimationFrame(step);
+}
+function navSearch() {
+  navStop(); NAV.busy = true; NAV.attempts = 0;
+  const tmp = new Uint8Array(bytesPerFrame());
+  const step = () => {
+    if (!NAV.busy) return;
+    frameRandom(tmp); navPaint(tmp); NAV.attempts++;
+    navSay("searching", `${fmtBig(NAV.attempts)} frames tried — 0 matches`);
+    if (NAV.attempts < 120) { NAV.raf = requestAnimationFrame(step); }
+    else {
+      NAV.busy = false;
+      const s = pow2Stats(bitsPerFrame());
+      navSay("result", `abandoned after ${NAV.attempts} attempts. Expected wait for this specific ` +
+        `island: ~10^${fmtBigInt(s.exp10)} attempts. Random search is not a strategy; it is a prayer.`);
+    }
+  };
+  NAV.raf = requestAnimationFrame(step);
+}
+function navConsultMap() {
+  if (!NAV.orig) { navSay("first", "load a frame and dissolve it"); return; }
+  NAV.t = Math.max(NAV.t, 1);
+  navAnimateT(0, 2200,
+    "home — instantly, because the map already contained the address. Here the map is memory; " +
+    "in a diffusion model it is the weights: a few gigabytes encoding the islands of a " +
+    "10^8,426,913-frame ocean. The map can be that small because meaning is compressible.");
+}
+
+/* ================= section 10: a film's path ================= */
+function leadingFractionOf(f) {
+  let v = 0;
+  const take = Math.min(7, f.length);
+  for (let i = 0; i < take; i++) v = v * 256 + f[i];
+  return v / Math.pow(256, take);
+}
+function drawMiniChart(canvas, values, fmt) {
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width, H = canvas.height, pad = 52;
+  ctx.clearRect(0, 0, W, H);
+  if (!values.length) return;
+  const min = Math.min(...values), max = Math.max(...values);
+  const span = (max - min) || 1;
+  const X = i => pad + i / Math.max(1, values.length - 1) * (W - pad - 8);
+  const Y = v => H - 12 - (v - min) / span * (H - 24);
+  ctx.strokeStyle = "#383835"; ctx.lineWidth = 1;             // baseline
+  ctx.beginPath(); ctx.moveTo(pad, H - 12); ctx.lineTo(W - 8, H - 12); ctx.stroke();
+  ctx.strokeStyle = "#3987e5"; ctx.lineWidth = 2; ctx.lineJoin = "round";
+  ctx.beginPath();
+  values.forEach((v, i) => i ? ctx.lineTo(X(i), Y(v)) : ctx.moveTo(X(i), Y(v)));
+  ctx.stroke();
+  ctx.fillStyle = "#898781"; ctx.font = "11px ui-monospace, monospace";
+  ctx.textAlign = "right";
+  ctx.fillText(fmt(max), pad - 4, Y(max) + 4);
+  ctx.fillText(fmt(min), pad - 4, Y(min) + 4);
+}
+async function processVideo(file) {
+  const status = document.getElementById("filmStatus");
+  status.textContent = "reading video…";
+  const v = document.createElement("video");
+  v.muted = true; v.playsInline = true; v.preload = "auto";
+  v.src = URL.createObjectURL(file);
+  try {
+    await new Promise((res, rej) => { v.onloadedmetadata = res; v.onerror = () => rej(new Error("could not decode this video")); });
+    if (!isFinite(v.duration)) {   // WebM from screen recorders: force duration discovery
+      v.currentTime = 1e7;
+      await new Promise(res => { v.onseeked = res; });
+      v.currentTime = 0;
+      await new Promise(res => { v.onseeked = res; });
+    }
+    if (!isFinite(v.duration) || v.duration <= 0) throw new Error("video reports no duration");
+    if (!v.videoWidth) {           // dimensions only appear once decoding starts
+      await v.play().catch(() => {});
+      await new Promise((res, rej) => {
+        let tries = 0;
+        const chk = () => v.videoWidth ? res() : (++tries > 100 ? rej(new Error("video has no visible frames")) : setTimeout(chk, 50));
+        chk();
+      });
+      v.pause();
+    }
+    const K = Math.min(32, Math.max(8, Math.round(v.duration * 4)));
+    const full = document.createElement("canvas");
+    full.width = state.w; full.height = state.h;
+    const fx = full.getContext("2d", { willReadFrequently: true });
+    const strip = document.getElementById("filmStrip");
+    strip.innerHTML = "";
+    const motion = [], position = [];
+    let prev = null;
+    for (let i = 0; i < K; i++) {
+      status.textContent = `sampling frame ${i + 1} of ${K}…`;
+      v.currentTime = (i + 0.5) / K * v.duration;
+      await new Promise(res => { v.onseeked = res; });
+      const scale = Math.max(state.w / v.videoWidth, state.h / v.videoHeight);
+      fx.drawImage(v, (state.w - v.videoWidth * scale) / 2, (state.h - v.videoHeight * scale) / 2,
+        v.videoWidth * scale, v.videoHeight * scale);
+      const d = fx.getImageData(0, 0, state.w, state.h).data;
+      const rgb = new Uint8Array(bytesPerFrame());
+      for (let a = 0, b = 0; b < d.length; a += 3, b += 4) {
+        rgb[a] = d[b]; rgb[a + 1] = d[b + 1]; rgb[a + 2] = d[b + 2];
+      }
+      position.push(leadingFractionOf(rgb) * 100);
+      if (prev) {
+        let s = 0;
+        for (let a = 0; a < rgb.length; a++) s += Math.abs(rgb[a] - prev[a]);
+        motion.push(s / rgb.length);
+      }
+      prev = rgb;
+      const th = document.createElement("canvas");                 // thumbnail
+      th.width = 96; th.height = 96;
+      const tscale = Math.max(96 / v.videoWidth, 96 / v.videoHeight);
+      th.getContext("2d").drawImage(v, (96 - v.videoWidth * tscale) / 2, (96 - v.videoHeight * tscale) / 2,
+        v.videoWidth * tscale, v.videoHeight * tscale);
+      strip.appendChild(th);
+    }
+    URL.revokeObjectURL(v.src);
+    drawMiniChart(document.getElementById("filmMotion"), motion, x => x.toFixed(1));
+    drawMiniChart(document.getElementById("filmPosition"), position, x => x.toFixed(2) + "%");
+    const meanMotion = motion.reduce((a, b) => a + b, 0) / Math.max(1, motion.length);
+    const s = pow2Stats(bitsPerFrame());
+    document.getElementById("filmInfo").innerHTML = `
+      <div><span class="k">video</span><span class="v">${file.name} — ${v.duration.toFixed(1)} s, sampled at ${K} points, fitted to ${state.w}×${state.h}</span></div>
+      <div><span class="k">motion</span><span class="v">consecutive samples differ by ~${meanMotion.toFixed(1)}/255 per channel — visual neighbors</span></div>
+      <div><span class="k">trajectory</span><span class="v">${K} addresses out of ~10^${fmtBigInt(s.exp10)} — the whole film is a scribble of measure zero</span></div>
+      <div><span class="k">all of cinema</span><span class="v">every frame of every film ever made (~10^17) covers ~10^${fmtBigInt(17n - s.exp10)} of this space</span></div>`;
+    document.getElementById("filmResult").style.display = "";
+    status.textContent = "";
+  } catch (e) {
+    status.textContent = "error: " + e.message;
+  }
+}
+
+/* ================= section 11: witness registry ================= */
+// frame payloads live in IndexedDB (localStorage is too small for large frames)
+let idbP = null;
+function idb() {
+  if (!idbP) idbP = new Promise((res, rej) => {
+    const r = indexedDB.open("javen", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("frames");
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  return idbP;
+}
+async function idbPut(sha, value) {
+  const db = await idb();
+  return new Promise((res, rej) => {
+    const tx = db.transaction("frames", "readwrite");
+    tx.objectStore("frames").put(value, sha);
+    tx.oncomplete = res;
+    tx.onerror = () => rej(tx.error);
+  });
+}
+async function idbGet(sha) {
+  const db = await idb();
+  return new Promise((res, rej) => {
+    const rq = db.transaction("frames").objectStore("frames").get(sha);
+    rq.onsuccess = () => res(rq.result || null);
+    rq.onerror = () => rej(rq.error);
+  });
+}
+async function idbDel(sha) {
+  const db = await idb();
+  return new Promise(res => {
+    const tx = db.transaction("frames", "readwrite");
+    tx.objectStore("frames").delete(sha);
+    tx.oncomplete = res; tx.onerror = res;
+  });
+}
+
+// witness identity: an ECDSA P-256 keypair generated here, stored locally, never transmitted
+let keysP = null;
+function witnessKeys() {
+  if (!keysP) keysP = (async () => {
+    let rec = await idbGet("__witness_keys__");
+    if (!rec || !rec.priv) {
+      const kp = await crypto.subtle.generateKey(
+        { name: "ECDSA", namedCurve: "P-256" }, false, ["sign", "verify"]);
+      rec = { priv: kp.privateKey, pub: kp.publicKey };
+      await idbPut("__witness_keys__", rec);
+    }
+    const spki = new Uint8Array(await crypto.subtle.exportKey("spki", rec.pub));
+    const dig = new Uint8Array(await crypto.subtle.digest("SHA-256", spki));
+    const fp = Array.from(dig.slice(0, 6), x => x.toString(16).padStart(2, "0")).join("");
+    return { priv: rec.priv, spki, fp };
+  })();
+  return keysP;
+}
+function claimMessage(sha, space, ts) { return `javen-claim-v1|${sha}|${space}|${ts}`; }
+
+async function verifyClaimUI(i) {
+  const c = loadRegistry()[i];
+  const el = document.querySelector(`[data-vstatus="${i}"]`);
+  if (!c || !el) return;
+  el.textContent = "verifying…";
+  try {
+    if (!c.sig || !c.pub) { el.textContent = "unsigned — claimed before signatures existed"; return; }
+    const pub = await crypto.subtle.importKey("spki", b64ToBytes(c.pub),
+      { name: "ECDSA", namedCurve: "P-256" }, false, ["verify"]);
+    const msg = new TextEncoder().encode(claimMessage(c.sha, c.space, c.ts));
+    const okSig = await crypto.subtle.verify(
+      { name: "ECDSA", hash: "SHA-256" }, pub, b64ToBytes(c.sig), msg);
+    let frameNote = "";
+    if (c.stored) {
+      const rec = await idbGet(c.sha);
+      if (rec) {
+        const bytes = rec.enc === "d" ? await tryInflate(rec.data) : rec.data;
+        const dig = await crypto.subtle.digest("SHA-256", bytes);
+        const sha = Array.from(new Uint8Array(dig), x => x.toString(16).padStart(2, "0")).join("");
+        frameNote = sha === c.sha ? " · frame bytes ✓" : " · frame bytes ✗ ALTERED";
+      }
+    }
+    el.textContent = okSig
+      ? `signature ✓ — witnessed by key ${c.key} at ${new Date(c.ts).toLocaleString()}${frameNote}`
+      : "signature ✗ INVALID — this claim does not match its key";
+  } catch (e) { el.textContent = "verification error: " + e.message; }
+}
+
+function loadRegistry() {
+  try { return JSON.parse(localStorage.getItem("javenRegistry") || "[]"); }
+  catch (e) { return []; }
+}
+function saveRegistry(r) { localStorage.setItem("javenRegistry", JSON.stringify(r)); }
+function renderRegistry() {
+  const reg = loadRegistry();
+  const list = document.getElementById("claimList");
+  if (!reg.length) {
+    list.innerHTML = '<div class="hint">no claims yet — render or discover a frame in the viewer, then claim it</div>';
+    return;
+  }
+  list.innerHTML = reg.map((c, i) => `
+    <div class="claim-row">
+      <div>
+        <div class="who">${c.name} <span style="color:var(--muted);font-weight:400;font-size:12px">· ${new Date(c.ts).toLocaleString()} · ${c.space}${c.key ? ` · key ${c.key}` : ""}</span></div>
+        <div class="what">index ≈ ${c.sci} · sha-256 ${c.sha.slice(0, 20)}…</div>
+        <div class="what" data-vstatus="${i}"></div>
+      </div>
+      <div class="actions">
+        ${c.payload || c.stored ? `<button data-view="${i}">view</button>` : ""}
+        ${c.sig ? `<button data-verify="${i}">verify</button>` : ""}
+        <button data-del="${i}">✕</button>
+      </div>
+    </div>`).join("");
+}
+async function claimFrame() {
+  const sha = await frameSha();
+  const reg = loadRegistry();
+  if (reg.some(c => c.sha === sha)) {
+    document.getElementById("claimBtn").textContent = "already in the registry";
+    setTimeout(() => { document.getElementById("claimBtn").textContent = "✍ claim the current viewer frame"; }, 2000);
+    return;
+  }
+  const name = (document.getElementById("claimName").value.trim() || "anonymous").slice(0, 40);
+  localStorage.setItem("javenWitness", name);
+  const s = frameSci();
+  const entry = {
+    ts: Date.now(), space: `${state.w}x${state.h}`, sha, name,
+    sci: s.zero ? "0" : `${s.mantissa.toPrecision(4)} × 10^${fmtBig(s.exp10)}`,
+  };
+  try {
+    const comp = await tryDeflate(state.frame);
+    const useComp = comp && comp.length < state.frame.length;
+    await idbPut(sha, { enc: useComp ? "d" : "r", data: useComp ? comp : new Uint8Array(state.frame) });
+    entry.stored = true;
+  } catch (e) { /* storage full or unavailable: keep fingerprint-only */ }
+  try {
+    const k = await witnessKeys();
+    const msg = new TextEncoder().encode(claimMessage(sha, entry.space, entry.ts));
+    const sig = new Uint8Array(await crypto.subtle.sign({ name: "ECDSA", hash: "SHA-256" }, k.priv, msg));
+    entry.sig = bytesToB64(sig);
+    entry.pub = bytesToB64(k.spki);
+    entry.key = k.fp;
+  } catch (e) { /* signing unavailable: claim stays unsigned */ }
+  reg.unshift(entry);
+  saveRegistry(reg);
+  renderRegistry();
+}
+async function recallBySha() {
+  const q = document.getElementById("recallSha").value.trim().toLowerCase().replace(/[^0-9a-f]/g, "");
+  const msg = document.getElementById("recallMsg");
+  if (q.length < 12) {
+    msg.textContent = "paste at least 12 hex characters of a fingerprint";
+    return;
+  }
+  const reg = loadRegistry();
+  const idx = reg.findIndex(c => c.sha.startsWith(q));
+  if (idx < 0) {
+    msg.textContent = "no claim carries that fingerprint. A sha-256 is one-way: 32 bytes can identify " +
+      "a frame but never rebuild one — the address is as large as the image itself. Recall works for " +
+      "frames in your registry; for everything else, keep the hex address or a .javen card.";
+    return;
+  }
+  const c = reg[idx];
+  if (!c.payload && !c.stored) {
+    msg.textContent = `found ${c.name}'s claim from ${new Date(c.ts).toLocaleString()}, but only its fingerprint was kept (storage was unavailable when it was claimed).`;
+    return;
+  }
+  await viewClaim(idx);
+  const sha = await frameSha();
+  msg.textContent = sha === c.sha
+    ? `recalled — ${c.name}'s claim from ${new Date(c.ts).toLocaleString()}, re-rendered and sha-verified`
+    : "⚠ recalled frame failed sha verification";
+}
+
+async function viewClaim(i) {
+  const c = loadRegistry()[i];
+  if (!c || (!c.payload && !c.stored)) return;
+  let bytes;
+  if (c.payload) {                                  // legacy: stored inline in localStorage
+    bytes = b64ToBytes(c.payload);
+    if (c.enc === "d") bytes = await tryInflate(bytes);
+  } else {                                          // current: stored in IndexedDB
+    const rec = await idbGet(c.sha);
+    if (!rec) return;
+    bytes = rec.enc === "d" ? await tryInflate(rec.data) : rec.data;
+  }
+  const [w, h] = c.space.split("x").map(Number);
+  if (w !== state.w || h !== state.h) {
+    const preset = document.getElementById("preset");
+    const opt = [...preset.options].find(o => o.value === `${w}x${h}`);
+    preset.value = opt ? opt.value : "custom";
+    setSpace(w, h);
+  }
+  if (bytes.length !== bytesPerFrame()) return;
+  state.frame.set(bytes);
+  paintFrame(); updateFrameInfo();
+  document.getElementById("viewer").scrollIntoView();
+}
+
+/* ================= section 12: your words ================= */
+const WORDS = { bytes: null };
+function wrapText(ctx, text, maxW) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = []; let cur = "";
+  for (const w of words) {
+    const t = cur ? cur + " " + w : w;
+    if (ctx.measureText(t).width <= maxW || !cur) cur = t;
+    else { lines.push(cur); cur = w; }
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+function renderWords() {
+  const input = document.getElementById("wordsInput");
+  if (!input) return;
+  const text = input.value;
+  const c = document.getElementById("wordsCanvas");
+  const x = c.getContext("2d", { willReadFrequently: true });
+  x.fillStyle = "#000"; x.fillRect(0, 0, state.w, state.h);
+  if (text.trim()) {
+    x.fillStyle = "#fff";
+    let size = Math.floor(state.h / 4), lines = [];
+    while (size > 4) {
+      x.font = `600 ${size}px system-ui, sans-serif`;
+      lines = wrapText(x, text, state.w * 0.86);
+      const widest = Math.max(...lines.map(l => x.measureText(l).width));
+      if (lines.length * size * 1.3 <= state.h * 0.86 && widest <= state.w * 0.9) break;
+      size = Math.floor(size * 0.85);
+    }
+    x.textAlign = "center"; x.textBaseline = "middle";
+    const lh = size * 1.3, y0 = state.h / 2 - (lines.length - 1) * lh / 2;
+    lines.forEach((ln, i) => x.fillText(ln, state.w / 2, y0 + i * lh));
+  }
+  const d = x.getImageData(0, 0, state.w, state.h).data;
+  const rgb = new Uint8Array(bytesPerFrame());
+  for (let i = 0, j = 0; j < d.length; i += 3, j += 4) {
+    rgb[i] = d[j]; rgb[i + 1] = d[j + 1]; rgb[i + 2] = d[j + 2];
+  }
+  WORDS.bytes = rgb;
+  const info = document.getElementById("wordsInfo");
+  if (!text.trim()) { info.innerHTML = ""; document.getElementById("wordsHint").textContent = ""; return; }
+  const s = sciOfBytes(rgb);
+  info.innerHTML = `
+    <div><span class="k">address</span><span class="v"><b>${s.zero ? "0" : `≈ ${s.mantissa.toPrecision(6)} × 10^${fmtBig(s.exp10)}`}</b> (${s.zero ? 1 : fmtBig(s.digits)} digits)</span></div>
+    <div><span class="k">held since</span><span class="v">before language existed — typing it merely pointed there</span></div>`;
+}
+async function wordsToViewer() {
+  if (!WORDS.bytes) return;
+  stopWalk();
+  state.frame.set(WORDS.bytes);
+  paintFrame(); updateFrameInfo();
+  document.getElementById("viewer").scrollIntoView();
+}
+async function wordsShareLink() {
+  if (!WORDS.bytes) return;
+  const btn = document.getElementById("wordsLink");
+  state.frame.set(WORDS.bytes);
+  paintFrame(); updateFrameInfo();
+  const url = await buildShareLink();
+  if (!url) {
+    btn.textContent = "too large at this resolution — try 256×256";
+    setTimeout(() => { btn.textContent = "⧉ copy its address as a link"; }, 3000);
+    return;
+  }
+  history.replaceState(null, "", url);
+  let copied = false;
+  try { await navigator.clipboard.writeText(url); copied = true; } catch (e) { /* clipboard unavailable */ }
+  btn.textContent = copied ? "copied ✓ — the link is the sentence" : "URL set — copy it from the address bar";
+  document.getElementById("wordsHint").textContent =
+    `the whole frame compressed into ${(url.length / 1024).toFixed(1)} KB of URL — meaning is compressibility`;
+  setTimeout(() => { btn.textContent = "⧉ copy its address as a link"; }, 3500);
+}
+
+/* ================= guided tour ================= */
+async function synthFile(kind) {
+  const bytes = synthFrame(kind);
+  const c = document.createElement("canvas"); c.width = state.w; c.height = state.h;
+  const ctx = c.getContext("2d");
+  const img = ctx.createImageData(state.w, state.h);
+  for (let i = 0, j = 0; i < bytes.length; i += 3, j += 4) {
+    img.data[j] = bytes[i]; img.data[j + 1] = bytes[i + 1]; img.data[j + 2] = bytes[i + 2]; img.data[j + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  const blob = await new Promise(r => c.toBlob(r, "image/png"));
+  return new File([blob], "tour-demo.png", { type: "image/png" });
+}
+
+const TOUR = [
+  { target: "#space", title: "One number",
+    text: "Everything on this page orbits a single number: 16,777,216^1,166,400 — the count of every image that can exist at 1080×1080. It has about 8.4 million digits. Here it goes by the Javen Number, and this page is a set of instruments for feeling its size.",
+    enter() { if (state.w !== 1080 || state.h !== 1080) { document.getElementById("preset").value = "1080x1080"; setSpace(1080, 1080); } } },
+  { target: "#futilityCard", title: "No computer can help",
+    text: "If every atom in the observable universe had been rendering a trillion frames per second since the Big Bang, this bar would still read zero. Completeness is not the obstacle — the set is finite and fully defined. Scale is." },
+  { target: "#viewer", title: "Every image is a number",
+    text: "There is no database behind this page. A frame IS its index, written in base 256 across the pixels — rendering and addressing are exact inverses, so duplicates are impossible and storage is unnecessary. The frame on screen now has, almost surely, never existed before this moment.",
+    enter() { stopWalk(); frameRandom(state.frame); paintFrame(); updateFrameInfo(); } },
+  { target: "#viewer", title: "The walk",
+    text: "This is what enumerating the set actually looks like: the last channel of the last pixel, flickering. At this pace the top-left pixel first changes after ~10^8,426,890 years. Order of discovery is not a path to meaning.",
+    enter() { startWalk(); }, leave() { stopWalk(); } },
+  { target: "#static", title: "Sole witness",
+    text: "Uniform random samples from the set — which is what the set overwhelmingly is. Almost every frame flickering past has never been seen by anyone, ever, and never will be again. You are its only witness.",
+    enter() { startStatic(); }, leave() { stopStatic(); } },
+  { target: "#address", title: "Cameras look up addresses",
+    text: "Any photograph reverses into the coordinate it has always occupied. Taking a picture doesn't create an image — it locates one. Here is a demonstration frame being addressed; drop in one of your own photos afterwards.",
+    enter() { synthFile(0).then(addressImage); } },
+  { target: "#dissolve", title: "The line between photographs",
+    text: "Watch the true straight line between two images: the integers between their addresses, sampled in order. It passes almost entirely through static. Neighbors in number are strangers in appearance — which is why no enumeration order can crawl toward meaning.",
+    enter() {
+      const btn = document.querySelector('#dissolveModes button[data-mode="numeric"]');
+      if (btn) btn.click();
+      document.getElementById("dissolveT").value = 0;
+      startDissolvePlay();
+    }, leave() { stopDissolvePlay(); } },
+  { target: "#coords", title: "Meaning is compressibility",
+    text: "A photograph's address compresses seventy-fold; a noise frame's address compresses not at all. The difference between meaning and noise is measurable — it is pattern. Kolmogorov complexity, as a download button." },
+  { target: "#navigator", title: "Generators are navigators",
+    text: "Every image an AI model will ever output already had an address here before the model existed. Training surveys the islands of meaning; generating is sailing to one. Dissolve the photograph, then try the three ways back — only the map works, and the map is what model weights are.",
+    enter() { navLoadDemo(); } },
+  { target: "#universe", title: "A finish line",
+    text: "The 1×1 universe holds 16,777,216 frames — the only one a human can witness in full. This is the only progress bar on the page that moves. Let it run; it finishes in about 17 seconds.",
+    enter() { u1ResetAll(); document.getElementById("u1Speed").value = "1000000"; u1Toggle(); },
+    leave() { if (U1.playing) u1Toggle(); } },
+  { target: "#words", title: "Even language lives here",
+    text: "Type anything and it becomes a frame with an address it has held since before language existed. Writing, photography, cinema, generation — every way of making an image is a way of pointing at a coordinate that was always there.",
+    enter() {
+      const inp = document.getElementById("wordsInput");
+      inp.value = "you were always here";
+      renderWords();
+    } },
+  { target: "footer", title: "What it means",
+    text: "The set contains every true image — and, for each, an ocean of convincing lies. Containing everything, it can testify to nothing. The value of a picture was never its existence; every picture already existed. The value is the address, and the address is exactly as hard to find as the picture itself. That is the Javen Number: a complete library whose card catalog is the library." },
+];
+
+let tourIdx = -1;
+function tourShow(i) {
+  if (tourIdx >= 0 && TOUR[tourIdx].leave) TOUR[tourIdx].leave();
+  tourIdx = i;
+  const s = TOUR[i];
+  document.querySelector(s.target).scrollIntoView({ behavior: "smooth" });
+  if (s.enter) s.enter();
+  document.getElementById("tourStep").textContent = `Tour · ${i + 1} of ${TOUR.length}`;
+  document.getElementById("tourTitle").textContent = s.title;
+  document.getElementById("tourText").textContent = s.text;
+  document.getElementById("tourBack").disabled = i === 0;
+  document.getElementById("tourNext").textContent = i === TOUR.length - 1 ? "finish ✓" : "next →";
+  document.getElementById("tourCard").style.display = "";
+}
+function tourStop() {
+  if (tourIdx >= 0 && TOUR[tourIdx].leave) TOUR[tourIdx].leave();
+  tourIdx = -1;
+  document.getElementById("tourCard").style.display = "none";
+}
+function tourAdvance() { tourIdx >= TOUR.length - 1 ? tourStop() : tourShow(tourIdx + 1); }
+
+/* ================= shareable URL addresses ================= */
+function b64ToUrl(b64) { return b64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, ""); }
+function urlToB64(s) { s = s.replace(/-/g, "+").replace(/_/g, "/"); return s + "=".repeat((4 - s.length % 4) % 4); }
+
+async function buildShareLink() {
+  const raw = state.frame;
+  const comp = await tryDeflate(raw);
+  const useComp = comp && comp.length < raw.length;
+  const b64 = b64ToUrl(bytesToB64(useComp ? comp : raw));
+  const url = `${location.origin}${location.pathname}#f1.${state.w}x${state.h}.${useComp ? "d" : "r"}.${b64}`;
+  return url.length <= 8192 ? url : null;
+}
+async function shareFrame() {
+  const btn = document.getElementById("btnShare");
+  const url = await buildShareLink();
+  if (!url) {
+    const old = btn.textContent;
+    btn.textContent = "address too large for a URL — export a coordinate card";
+    setTimeout(() => { btn.textContent = old; }, 3000);
+    return;
+  }
+  history.replaceState(null, "", url);   // the address bar now IS the frame
+  let copied = false;
+  try { await navigator.clipboard.writeText(url); copied = true; } catch (e) { /* clipboard unavailable */ }
+  const old = "⧉ link";
+  btn.textContent = copied ? "copied ✓ — the URL is the frame" : "URL set — copy it from the address bar";
+  setTimeout(() => { btn.textContent = old; }, 3000);
+}
+async function loadFromHash() {
+  const m = location.hash.match(/^#f1\.(\d+)x(\d+)\.([dr])\.([A-Za-z0-9_-]+)$/);
+  if (!m) return false;
+  try {
+    const w = +m[1], h = +m[2];
+    const preset = document.getElementById("preset");
+    const opt = [...preset.options].find(o => o.value === `${w}x${h}`);
+    preset.value = opt ? opt.value : "custom";
+    if (w !== state.w || h !== state.h) setSpace(w, h);
+    let bytes = b64ToBytes(urlToB64(m[4]));
+    if (m[3] === "d") bytes = await tryInflate(bytes);
+    if (bytes.length !== bytesPerFrame()) throw new Error("size mismatch");
+    state.frame.set(bytes);
+    paintFrame(); updateFrameInfo();
+    document.getElementById("viewer").scrollIntoView();
+    return true;
+  } catch (e) { return false; }
+}
+
+/* ================= wiring ================= */
+document.getElementById("tourBtn").addEventListener("click", e => { e.preventDefault(); tourShow(0); });
+document.getElementById("tourNext").addEventListener("click", tourAdvance);
+document.getElementById("tourBack").addEventListener("click", () => { if (tourIdx > 0) tourShow(tourIdx - 1); });
+document.getElementById("tourEnd").addEventListener("click", tourStop);
+document.addEventListener("keydown", e => {
+  if (tourIdx < 0) return;
+  if (e.key === "Escape") tourStop();
+  else if (e.key === "ArrowRight") tourAdvance();
+  else if (e.key === "ArrowLeft" && tourIdx > 0) tourShow(tourIdx - 1);
+});
+document.getElementById("btnShare").addEventListener("click", shareFrame);
+document.getElementById("btnHex").addEventListener("click", copyFullHex);
+
+/* navigator wiring */
+document.getElementById("navDemo").addEventListener("click", navLoadDemo);
+document.getElementById("navViewer").addEventListener("click", () => navLoad(state.frame));
+document.getElementById("navDissolve").addEventListener("click", navDissolve);
+document.getElementById("navAverage").addEventListener("click", navAverage);
+document.getElementById("navSearch").addEventListener("click", navSearch);
+document.getElementById("navMap").addEventListener("click", navConsultMap);
+
+/* film wiring */
+const filmDrop = document.getElementById("filmDrop");
+const filmInput = document.getElementById("filmInput");
+filmDrop.addEventListener("click", e => { if (e.target !== filmInput) filmInput.click(); });
+filmInput.addEventListener("change", () => {
+  if (filmInput.files[0]) processVideo(filmInput.files[0]);
+  filmInput.value = "";
+});
+filmDrop.addEventListener("dragover", e => { e.preventDefault(); filmDrop.classList.add("drag"); });
+filmDrop.addEventListener("dragleave", () => filmDrop.classList.remove("drag"));
+filmDrop.addEventListener("drop", e => {
+  e.preventDefault(); filmDrop.classList.remove("drag");
+  if (e.dataTransfer.files[0]) processVideo(e.dataTransfer.files[0]);
+});
+
+/* registry wiring */
+document.getElementById("claimBtn").addEventListener("click", claimFrame);
+document.getElementById("recallBtn").addEventListener("click", recallBySha);
+document.getElementById("recallSha").addEventListener("keydown", e => { if (e.key === "Enter") recallBySha(); });
+document.getElementById("claimList").addEventListener("click", e => {
+  const view = e.target.closest("button[data-view]");
+  const del = e.target.closest("button[data-del]");
+  const ver = e.target.closest("button[data-verify]");
+  if (view) viewClaim(+view.dataset.view);
+  if (ver) verifyClaimUI(+ver.dataset.verify);
+  if (del) {
+    const reg = loadRegistry();
+    const [gone] = reg.splice(+del.dataset.del, 1);
+    if (gone && gone.stored) idbDel(gone.sha);
+    saveRegistry(reg);
+    renderRegistry();
+  }
+});
+document.getElementById("registryExport").addEventListener("click", () => {
+  const blob = new Blob([JSON.stringify(loadRegistry(), null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "javen-witness-registry.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+});
+
+document.getElementById("preset").addEventListener("change", e => {
+  if (e.target.value === "custom") {
+    document.getElementById("customDims").style.display = "";
+    return;
+  }
+  document.getElementById("customDims").style.display = "none";
+  const [w, h] = e.target.value.split("x").map(Number);
+  setSpace(w, h);
+});
+document.getElementById("applyCustom").addEventListener("click", () => {
+  const w = Math.min(4096, Math.max(1, +document.getElementById("customW").value || 1));
+  const h = Math.min(4096, Math.max(1, +document.getElementById("customH").value || 1));
+  setSpace(w, h);
+});
+
+document.getElementById("goBtn").addEventListener("click", renderIndexInput);
+document.getElementById("indexInput").addEventListener("keydown", e => { if (e.key === "Enter") renderIndexInput(); });
+document.getElementById("btnBlack").addEventListener("click", () => { stopWalk(); frameFill(0); paintFrame(); updateFrameInfo(); });
+document.getElementById("btnWhite").addEventListener("click", () => { stopWalk(); frameFill(255); paintFrame(); updateFrameInfo(); });
+document.getElementById("btnRandom").addEventListener("click", () => { stopWalk(); frameRandom(state.frame); paintFrame(); updateFrameInfo(); });
+document.getElementById("btnInc").addEventListener("click", () => { const w = frameAdd(0); paintFrame(); updateFrameInfo(w); });
+document.getElementById("btnDec").addEventListener("click", () => { const w = frameSub(0); paintFrame(); updateFrameInfo(w); });
+document.getElementById("btnWalk").addEventListener("click", () => state.walking ? stopWalk() : startWalk());
+document.getElementById("btnDownload").addEventListener("click", () => {
+  document.getElementById("viewCanvas").toBlob(b => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(b);
+    a.download = `pixeltheory_${state.w}x${state.h}.png`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+  }, "image/png");
+});
+
+document.getElementById("staticBtn").addEventListener("click", () => state.staticPlaying ? stopStatic() : startStatic());
+document.getElementById("staticOnce").addEventListener("click", () => {
+  stopStatic();
+  const buf = new Uint8Array(bytesPerFrame());
+  frameRandom(buf);
+  paintCanvas(document.getElementById("staticCanvas"), buf);
+  state.staticCount++;
+  document.getElementById("stCount").textContent = fmtBig(state.staticCount);
+});
+
+const dz = document.getElementById("dropzone");
+const fi = document.getElementById("fileInput");
+dz.addEventListener("click", e => { if (e.target !== fi) fi.click(); });
+fi.addEventListener("change", () => {
+  if (fi.files[0]) addressImage(fi.files[0]);
+  fi.value = "";                       // allow re-selecting the same file
+});
+dz.addEventListener("dragover", e => { e.preventDefault(); dz.classList.add("drag"); });
+dz.addEventListener("dragleave", () => dz.classList.remove("drag"));
+dz.addEventListener("drop", e => {
+  e.preventDefault(); dz.classList.remove("drag");
+  if (e.dataTransfer.files[0]) addressImage(e.dataTransfer.files[0]);
+  else document.getElementById("addressStatus").textContent =
+    "✕ that drag carried no file — drag from Finder/Explorer, or click to choose";
+});
+
+document.getElementById("sendToViewer").addEventListener("click", () => {
+  if (!state.addressed) return;
+  stopWalk();
+  state.frame.set(state.addressed);
+  paintFrame(); updateFrameInfo();
+  document.getElementById("viewer").scrollIntoView();
+});
+document.getElementById("sendToIslands").addEventListener("click", () => {
+  if (!state.addressed) return;
+  pullIsland(state.addressed);
+  document.getElementById("islands").scrollIntoView();
+});
+document.getElementById("pullFromViewer").addEventListener("click", () => pullIsland(state.frame));
+document.getElementById("corruptSlider").addEventListener("input", e => {
+  const f = e.target.value / 100;
+  document.getElementById("corruptPct").textContent = e.target.value + "%";
+  corrupt(f);
+});
+
+/* dissolve wiring */
+for (const which of ["A", "B"]) {
+  document.getElementById(`slot${which}File`).addEventListener("click",
+    () => document.getElementById(`slot${which}Input`).click());
+  document.getElementById(`slot${which}Input`).addEventListener("change", async e => {
+    const file = e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    try { setSlot(which, await fileToFrame(file)); }
+    catch (err) {
+      const btn = document.getElementById(`slot${which}File`);
+      btn.textContent = "couldn't decode";
+      setTimeout(() => { btn.textContent = "image…"; }, 2500);
+    }
+  });
+  document.getElementById(`slot${which}Random`).addEventListener("click", () => {
+    const buf = new Uint8Array(bytesPerFrame());
+    frameRandom(buf);
+    setSlot(which, buf);
+  });
+  document.getElementById(`slot${which}Viewer`).addEventListener("click",
+    () => setSlot(which, new Uint8Array(state.frame)));
+}
+document.getElementById("dissolveModes").addEventListener("click", e => {
+  const btn = e.target.closest("button[data-mode]");
+  if (!btn) return;
+  DIS.mode = btn.dataset.mode;
+  for (const b of document.querySelectorAll("#dissolveModes button"))
+    b.classList.toggle("active", b === btn);
+  dissolveFrame();
+});
+document.getElementById("dissolveT").addEventListener("input", dissolveFrame);
+document.getElementById("dissolvePlay").addEventListener("click",
+  () => DIS.playing ? stopDissolvePlay() : startDissolvePlay());
+
+/* coordinates wiring */
+document.getElementById("coordExport").addEventListener("click", exportCoordinate);
+document.getElementById("coordImportBtn").addEventListener("click",
+  () => document.getElementById("coordInput").click());
+document.getElementById("coordInput").addEventListener("change", e => {
+  if (e.target.files[0]) importCoordinate(e.target.files[0]);
+});
+
+/* finishable universe wiring */
+document.getElementById("u1Play").addEventListener("click", u1Toggle);
+document.getElementById("u1Reset").addEventListener("click", u1ResetAll);
+document.getElementById("u1Speed").addEventListener("change", u1Update);
+document.getElementById("atlasBtn").addEventListener("click", renderAtlas);
+document.getElementById("atlasCanvas").addEventListener("click", e => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const px = Math.min(4095, Math.max(0, Math.floor((e.clientX - rect.left) / rect.width * 4096)));
+  const py = Math.min(4095, Math.max(0, Math.floor((e.clientY - rect.top) / rect.height * 4096)));
+  U1.index = py * 4096 + px;
+  U1.done = false;
+  u1Update();
+});
+
+/* words wiring */
+let wordsTimer = null;
+document.getElementById("wordsInput").addEventListener("input", () => {
+  clearTimeout(wordsTimer);
+  wordsTimer = setTimeout(renderWords, 120);
+});
+document.getElementById("wordsViewer").addEventListener("click", wordsToViewer);
+document.getElementById("wordsLink").addEventListener("click", wordsShareLink);
+
+/* boot */
+setSpace(256, 256);
+u1Update();
+document.getElementById("claimName").value = localStorage.getItem("javenWitness") || "";
+renderRegistry();
+witnessKeys().then(k => { document.getElementById("witnessKey").textContent = k.fp; })
+  .catch(() => { document.getElementById("witnessKey").textContent = "unavailable in this browser"; });
+loadFromHash();
+</script>
+</body>
+</html>
